@@ -5,6 +5,7 @@ import { generateOTP } from "@/src/lib/tokens";
 import { UserRole } from "@/generated/prisma/client";
 import prisma from "@/src/lib/prisma";
 import { uploadToCloudinary } from "@/src/lib/cloudinary";
+import { sendVerificationEmail } from "@/src/lib/mail";
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,21 +17,35 @@ export async function POST(req: NextRequest) {
 
     // Tutor fields
     const bio = formData.get("bio") as string | null;
-    const experience = formData.get("experience") as string | null;
+    const experienceType = formData.get("experienceType") as string | null;
+    const experienceYears = formData.get("experienceYears") as string | null;
     const subjectsRaw = formData.get("subjects") as string | null;
-    let subjects: string[] = [];
-    if (subjectsRaw) {
-        try {
-            subjects = JSON.parse(subjectsRaw);
-        } catch (e) {
-             // Fallback for comma separated (legacy)
-             subjects = subjectsRaw.split(',').map(s => s.trim());
-        }
-    }
-    const classesTaught = formData.get("classesTaught") as string | null;
+    const subjectsOthers = formData.get("subjectsOthers") as string | null;
+    const classesTaughtRaw = formData.get("classesTaught") as string | null;
     const adhaarId = formData.get("adhaarId") as string | null;
     const location = formData.get("location") as string | null;
     const phoneNumber = formData.get("phoneNumber") as string;
+
+    let subjects: string[] = [];
+    if (subjectsRaw) {
+      try {
+        subjects = JSON.parse(subjectsRaw);
+      } catch {
+        subjects = subjectsRaw.split(',').map(s => s.trim());
+      }
+    }
+    if (subjectsOthers) {
+      subjects.push(subjectsOthers);
+    }
+
+    let classesTaught: string[] = [];
+    if (classesTaughtRaw) {
+      try {
+        classesTaught = JSON.parse(classesTaughtRaw);
+      } catch {
+        classesTaught = classesTaughtRaw.split(',').map(s => s.trim());
+      }
+    }
 
     // Normalize role
     if (role === "TEACHER") role = "TUTOR";
@@ -42,9 +57,11 @@ export async function POST(req: NextRequest) {
     const parse = registerSchema.safeParse({ 
         fullname, email, password, role, phoneNumber,
         bio: bio || undefined,
-        experience: experience || undefined,
+        experienceType: experienceType || undefined,
+        experienceYears: experienceYears ? parseInt(experienceYears) : undefined,
         subjects: subjects.length > 0 ? subjects : undefined,
-        classesTaught: classesTaught || undefined,
+        subjectsOthers: subjectsOthers || undefined,
+        classesTaught: classesTaught.length > 0 ? classesTaught : undefined,
         adhaarId: adhaarId || undefined,
         location: location || undefined
     });
@@ -73,16 +90,14 @@ export async function POST(req: NextRequest) {
     let profilePhotoUrl = null;
 
     try {
-        if (verificationDocument) {
+        if (verificationDocument && (verificationDocument as File).size > 0) {
             verificationDocumentUrl = await uploadToCloudinary(verificationDocument, "documents");
         }
-        if (profilePhoto) {
+        if (profilePhoto && (profilePhoto as File).size > 0) {
             profilePhotoUrl = await uploadToCloudinary(profilePhoto, "avatars");
         }
     } catch (uploadError) {
         console.error("Upload failed", uploadError);
-        // Continue without files or return error? 
-        // Returning error is safer to let user know
         return NextResponse.json({ message: "File upload failed" }, { status: 500 });
     }
 
@@ -99,6 +114,11 @@ export async function POST(req: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, 10);
     const verificationToken = generateOTP();
     const verificationTokenExpiry = new Date(Date.now() + 3600 * 1000);
+
+    // Compose experience string for DB
+    const experienceStr = experienceType === 'others' 
+      ? `${experienceYears} years` 
+      : experienceType;
 
     // Create User and Profile using transaction or nested write
     const user = await prisma.user.create({
@@ -121,8 +141,8 @@ export async function POST(req: NextRequest) {
             tutorProfile: {
                 create: {
                    bio: bio,
-                   experience: experience,
-                   classesTaught: classesTaught,
+                   experience: experienceStr,
+                   classesTaught: classesTaught.join(', '),
                    adhaarId: adhaarId,
                    location: location,
                    subjects: subjects,
@@ -131,6 +151,15 @@ export async function POST(req: NextRequest) {
         } : {})
       },
     });
+
+    // Send verification email
+    try {
+      await sendVerificationEmail(email, verificationToken);
+    } catch (emailError) {
+      console.error("Failed to send verification email:", emailError);
+      // We don't return error here because user is already created
+      // They can request a resend later
+    }
 
     return NextResponse.json({ message: "User created. Please verify your email.", userId: user.id }, { status: 201 });
   } catch (err: unknown) {

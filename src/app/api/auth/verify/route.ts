@@ -1,47 +1,45 @@
+import { NextResponse } from "next/server";
 import prisma from "@/src/lib/prisma";
-import { NextResponse, NextRequest } from "next/server";
 
-export async function POST(req: NextRequest) {
-    try {
-        const { email, otp } = await req.json();
+export async function GET(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const token = searchParams.get("token");
 
-        if (!email || !otp) {
-            return NextResponse.json({ message: "Email and OTP are required" }, { status: 400 });
-        }
-
-        const user = await prisma.user.findUnique({
-            where: { email },
-        });
-
-        if (!user) {
-            return NextResponse.json({ message: "User not found" }, { status: 404 });
-        }
-
-        if (user.isVerified) {
-            return NextResponse.json({ message: "Email already verified" }, { status: 400 });
-        }
-
-        if (user.verficationToken !== otp) {
-            return NextResponse.json({ message: "Invalid OTP" }, { status: 400 });
-        }
-
-        if (user.verficationTokenExpiry && new Date() > user.verficationTokenExpiry) {
-            return NextResponse.json({ message: "OTP expired" }, { status: 400 });
-        }
-
-        await prisma.user.update({
-            where: { id: user.id },
-            data: {
-                isVerified: true,
-                verficationToken: null,
-                verficationTokenExpiry: null,
-            },
-        });
-
-        return NextResponse.json({ message: "Email verified successfully" }, { status: 200 });
-
-    } catch (error: any) {
-        console.error("Verification error:", error);
-        return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
+    if (!token) {
+      return NextResponse.json({ message: "Verification token is required" }, { status: 400 });
     }
+
+    const user = await prisma.user.findFirst({
+      where: {
+        verficationToken: token,
+        verficationTokenExpiry: {
+          gt: new Date(),
+        },
+      },
+    });
+
+    if (!user) {
+      return NextResponse.json({ message: "Invalid or expired verification token" }, { status: 400 });
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        isVerified: true,
+        verficationToken: null,
+        verficationTokenExpiry: null,
+      },
+    });
+
+    // Determine redirect URL based on role
+    const loginPath = user.role === 'TUTOR' ? '/auth/login/tutor' : '/auth/login/parent';
+    const redirectUrl = new URL(loginPath, req.url);
+    redirectUrl.searchParams.set('verified', 'true');
+
+    return NextResponse.redirect(redirectUrl);
+  } catch (error) {
+    console.error("Verification error:", error);
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
+  }
 }

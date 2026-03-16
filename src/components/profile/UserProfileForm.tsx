@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -17,7 +17,6 @@ import { Input } from "@/src/components/ui/input";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -28,7 +27,9 @@ import { toast } from "sonner";
 
 const userProfileSchema = z.object({
   fullname: z.string().min(2, "Full name must be at least 2 characters"),
-  phoneNumber: z.string().optional(),
+  phoneNumber: z.string()
+    .min(10, "Phone number must be at least 10 digits.")
+    .max(15, "Phone number must be at most 15 digits."),
 });
 
 type UserProfileFormValues = z.infer<typeof userProfileSchema>;
@@ -44,11 +45,7 @@ export default function UserProfileForm() {
     },
   });
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const response = await axios.get("/api/profile");
       if (response.data) {
@@ -57,18 +54,22 @@ export default function UserProfileForm() {
           phoneNumber: response.data.phoneNumber || "",
         });
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to fetch profile");
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [form]);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   const onSubmit = async (data: UserProfileFormValues) => {
     try {
       await axios.put("/api/profile", data);
       toast.success("Profile updated successfully");
-    } catch (error) {
+    } catch {
       toast.error("Failed to update profile");
     }
   };

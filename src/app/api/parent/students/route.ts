@@ -4,6 +4,7 @@ import { authOptions } from "@/src/lib/auth";
 import prisma from "@/src/lib/prisma";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
+import { sendStudentCredentialsEmail } from "@/src/lib/mail";
 
 // Schema for creating a student
 const createStudentSchema = z.object({
@@ -32,8 +33,22 @@ export async function POST(req: Request) {
       },
     });
 
+    // Send credentials to parent
+    if (session.user.email) {
+      try {
+        await sendStudentCredentialsEmail(
+          session.user.email,
+          student.name,
+          student.id,
+          validatedData.password
+        );
+      } catch (emailError) {
+        console.error("Failed to send student credentials email:", emailError);
+      }
+    }
+
     return NextResponse.json(student, { status: 201 });
-  } catch (error: any) {
+  } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: (error as z.ZodError).issues }, { status: 400 });
     }
@@ -45,7 +60,7 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions);
 

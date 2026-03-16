@@ -9,7 +9,7 @@ export function Providers({ children, session }: { children: React.ReactNode, se
             <ProfileProvider>
                 <ThemeProvider
                     attribute="class"
-                    defaultTheme="dark"
+                    defaultTheme="system"
 
                 >
                     {children}

@@ -1,6 +1,6 @@
 "use client";
 import { Badge } from "@/src/components/ui/badge"
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { useParams } from "next/navigation";
 import {
@@ -18,7 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/src/components/ui/popover";
-import { format, addDays, getDay, setHours, setMinutes } from "date-fns";
+import { format, addDays, getDay } from "date-fns";
 import { cn } from "@/src/lib/utils";
 import { IconLoader2, IconMapPin, IconCalendar } from "@tabler/icons-react";
 
@@ -62,6 +62,7 @@ import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
+import Script from "next/script";
 
 export default function TutorProfilePage() {
   const params = useParams();
@@ -90,19 +91,7 @@ export default function TutorProfilePage() {
       { label: "Sat", value: 6 },
   ];
 
-  useEffect(() => {
-    if (params.id) {
-      fetchTutor(params.id as string);
-    }
-  }, [params.id]);
-
-  useEffect(() => {
-      if (bookingOpen && session?.user?.role === 'PARENT') {
-          fetchMyStudents();
-      }
-  }, [bookingOpen, session]);
-
-  const fetchTutor = async (id: string) => {
+  const fetchTutor = useCallback(async (id: string) => {
     try {
       const response = await axios.get(`/api/tutors/${id}`);
       setTutor(response.data);
@@ -111,21 +100,33 @@ export default function TutorProfilePage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const fetchMyStudents = async () => {
-      try {
-          const res = await axios.get('/api/parent/students');
-          setMyStudents(res.data);
-      } catch (e) {
-          toast.error("Failed to load your students");
+  const fetchMyStudents = useCallback(async () => {
+    try {
+        const res = await axios.get('/api/parent/students');
+        setMyStudents(res.data);
+    } catch {
+        toast.error("Failed to load your students");
+    }
+}, []);
+
+  useEffect(() => {
+    if (params.id) {
+      fetchTutor(params.id as string);
+    }
+  }, [params.id, fetchTutor]);
+
+  useEffect(() => {
+      if (bookingOpen && session?.user?.role === 'PARENT') {
+          fetchMyStudents();
       }
-  };
+  }, [bookingOpen, session, fetchMyStudents]);
 
   const generateSchedule = () => {
     if (!time) return [];
     const [hours, minutes] = time.split(':').map(Number);
-    let dates: Date[] = [];
+    const dates: Date[] = [];
 
     if (!isRecurring) {
         if (!date) return [];
@@ -156,19 +157,60 @@ export default function TutorProfilePage() {
     if (schedules.length === 0) {
         return toast.error("Please select valid dates/time");
     }
+
+    const amount = (tutor?.hourlyRate || 0) * schedules.length;
       
     try {
-        await axios.post('/api/class/create', {
-            tutorId: tutor?.id, 
-            studentId: selectedStudentId,
-            schedules: schedules.map(d => d.toISOString()),
-        }, {withCredentials:true,headers:{'Content-Type': 'application/json'}});
-        
-        toast.success(`Successfully booked ${schedules.length} class(es)!`);
-        setBookingOpen(false);
+        // 1. Create Order
+        const orderRes = await axios.post('/api/payments/create-order', {
+            tutorId: tutor?.id,
+            amount: amount
+        });
+
+        const order = orderRes.data;
+
+        // 2. Open Razorpay
+        const options = {
+            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+            amount: order.amount,
+            currency: order.currency,
+            name: "Drona",
+            description: `Session with ${tutor?.user.fullname}`,
+            order_id: order.id,
+            handler: async (response: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) => {
+                // 3. On success, create class
+                try {
+                    await axios.post('/api/class/create', {
+                        tutorId: tutor?.id, 
+                        studentId: selectedStudentId,
+                        schedules: schedules.map(d => d.toISOString()),
+                        paymentId: response.razorpay_payment_id,
+                        orderId: response.razorpay_order_id,
+                        signature: response.razorpay_signature,
+                    });
+                    
+                    toast.success(`Successfully booked ${schedules.length} class(es)!`);
+                    setBookingOpen(false);
+                } catch (err) {
+                    console.error("Failed to create class after payment", err);
+                    toast.error("Payment successful but class creation failed. Please contact support.");
+                }
+            },
+            prefill: {
+                name: session?.user?.name,
+                email: session?.user?.email,
+            },
+            theme: {
+                color: "#3b82f6",
+            },
+        };
+
+        const rzp = new (window as any).Razorpay(options);
+        rzp.open();
+
     } catch (error) {
-        console.error("Failed to book class",error);
-        toast.error("Failed to book class");
+        console.error("Failed to initiate booking",error);
+        toast.error("Failed to initiate payment");
     }
   };
 
@@ -186,6 +228,7 @@ export default function TutorProfilePage() {
 
   return (
     <>
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" />
       <div className="container mx-auto p-6 max-w-4xl">
         <div className="grid gap-6 md:grid-cols-3">
           {/* Sidebar / Info */}
@@ -242,7 +285,7 @@ export default function TutorProfilePage() {
                                       <Checkbox 
                                           id="recurring" 
                                           checked={isRecurring} 
-                                          onCheckedChange={(checked: boolean) => setIsRecurring(checked as boolean)}
+                                          onCheckedChange={(checked) => setIsRecurring(checked as boolean)}
                                       />
                                       <Label htmlFor="recurring" className="font-medium cursor-pointer">Recurring Schedule? (Next 30 days)</Label>
                                   </div>
@@ -329,7 +372,7 @@ export default function TutorProfilePage() {
                       </Button>
                   )}
                 <Button variant='outline' className="w-full">Enquire Now</Button>
-             
+              
                 </div>
                  </CardContent>
             </Card>

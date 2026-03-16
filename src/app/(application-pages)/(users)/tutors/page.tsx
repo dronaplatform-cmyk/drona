@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { Input } from "@/src/components/ui/input";
 import { Button } from "@/src/components/ui/button";
@@ -38,6 +38,7 @@ const CLASS_RANGES = ['1-5', '6-8', '9-10', '11-12'];
 export default function FindTutorPage() {
   const [tutors, setTutors] = useState<Tutor[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
   const [subjectOpen, setSubjectOpen] = useState(false);
@@ -49,14 +50,11 @@ export default function FindTutorPage() {
   const [maxPrice, setMaxPrice] = useState("");
   const [rating, setRating] = useState("");
 
-  useEffect(() => {
-    fetchTutors();
-  }, []);
-
-  const fetchTutors = async () => {
+  const fetchTutors = useCallback(async () => {
     setIsLoading(true);
     try {
       const params = new URLSearchParams();
+      if (searchQuery) params.append("query", searchQuery);
       if (selectedSubjects.length > 0) params.append("subject", selectedSubjects.join(","));
       if (location) params.append("location", location);
       if (selectedClasses.length > 0) params.append("classesTaught", selectedClasses.join(","));
@@ -71,9 +69,11 @@ export default function FindTutorPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [searchQuery, selectedSubjects, location, selectedClasses, minPrice, maxPrice, rating]);
 
-
+  useEffect(() => {
+    fetchTutors();
+  }, [fetchTutors]);
 
   const toggleClassSelection = (cls: string) => {
     setSelectedClasses(prev => 
@@ -104,213 +104,224 @@ export default function FindTutorPage() {
            <p className="text-muted-foreground mt-1">Discover the best tutors for your needs</p>
         </div>
         
-        <Sheet>
-            <SheetTrigger asChild>
-                <Button variant="outline" className="gap-2">
-                    <IconFilter className="w-4 h-4" />
-                    Filters
-                    {(location || selectedClasses.length > 0 || minPrice || maxPrice || rating) && (
-                        <Badge variant="secondary" className="ml-1 px-1 h-5 min-w-5 flex items-center justify-center">
-                            !
-                        </Badge>
-                    )}
-                </Button>
-            </SheetTrigger>
-            <SheetContent className="w-[350px] p-4 sm:w-[540px] overflow-y-auto">
-                <SheetHeader>
-                    <SheetTitle>Filter Tutors</SheetTitle>
-                    <SheetDescription>
-                        Narrow down your search results.
-                    </SheetDescription>
-                </SheetHeader>
-                <div className="py-6 space-y-6">
-                    {/* Subject Filter */}
-                    <div className="space-y-2">
-                        <Label>Subjects</Label>
-                        <Popover open={subjectOpen} onOpenChange={setSubjectOpen}>
-                            <PopoverTrigger asChild>
-                                <Button
-                                    variant="outline"
-                                    role="combobox"
-                                    aria-expanded={subjectOpen}
-                                    className="w-full justify-between"
-                                >
-                                    {selectedSubjects.length > 0
-                                        ? `${selectedSubjects.length} selected`
-                                        : "Select subjects..."}
-                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-[300px] p-0">
-                                <Command>
-                                    <CommandInput placeholder="Search subject..." />
-                                    <CommandList>
-                                        <CommandEmpty>No subject found.</CommandEmpty>
-                                        <CommandGroup className="max-h-[200px] overflow-y-auto">
-                                            {SUBJECTS.map((subj) => (
-                                                <CommandItem
-                                                    key={subj}
-                                                    value={subj}
-                                                    onSelect={() => toggleSubject(subj)}
-                                                >
-                                                    <div
-                                                        className={cn(
-                                                            "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                                                            selectedSubjects.includes(subj)
-                                                                ? "bg-primary text-primary-foreground"
-                                                                : "opacity-50 [&_svg]:invisible"
-                                                        )}
+        <div className="flex items-center gap-2 w-full md:w-auto">
+            <div className="relative flex-1 md:w-64">
+                <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input 
+                    placeholder="Search name, bio..." 
+                    className="pl-9"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && fetchTutors()}
+                />
+            </div>
+            <Button onClick={fetchTutors}>Search</Button>
+            
+            <Sheet>
+                <SheetTrigger asChild>
+                    <Button variant="outline" className="gap-2">
+                        <IconFilter className="w-4 h-4" />
+                        Filters
+                        {(location || selectedClasses.length > 0 || minPrice || maxPrice || rating) && (
+                            <Badge variant="secondary" className="ml-1 px-1 h-5 min-w-5 flex items-center justify-center">
+                                !
+                            </Badge>
+                        )}
+                    </Button>
+                </SheetTrigger>
+                <SheetContent className="w-[350px] p-4 sm:w-[540px] overflow-y-auto">
+                    <SheetHeader>
+                        <SheetTitle>Filter Tutors</SheetTitle>
+                        <SheetDescription>
+                            Narrow down your search results.
+                        </SheetDescription>
+                    </SheetHeader>
+                    <div className="py-6 space-y-6">
+                        {/* Subject Filter */}
+                        <div className="space-y-2">
+                            <Label>Subjects</Label>
+                            <Popover open={subjectOpen} onOpenChange={setSubjectOpen}>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        role="combobox"
+                                        aria-expanded={subjectOpen}
+                                        className="w-full justify-between"
+                                    >
+                                        {selectedSubjects.length > 0
+                                            ? `${selectedSubjects.length} selected`
+                                            : "Select subjects..."}
+                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-[300px] p-0">
+                                    <Command>
+                                        <CommandInput placeholder="Search subject..." />
+                                        <CommandList>
+                                            <CommandEmpty>No subject found.</CommandEmpty>
+                                            <CommandGroup className="max-h-[200px] overflow-y-auto">
+                                                {SUBJECTS.map((subj) => (
+                                                    <CommandItem
+                                                        key={subj}
+                                                        value={subj}
+                                                        onSelect={() => toggleSubject(subj)}
                                                     >
-                                                        <Check className={cn("h-4 w-4")} />
-                                                    </div>
-                                                    {subj}
-                                                </CommandItem>
-                                            ))}
-                                        </CommandGroup>
-                                    </CommandList>
-                                </Command>
-                            </PopoverContent>
-                        </Popover>
-                        {selectedSubjects.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mt-2">
-                                {selectedSubjects.map((subj) => (
-                                    <Badge key={subj} variant="secondary" className="text-xs cursor-pointer" onClick={() => toggleSubject(subj)}>
-                                        {subj}
-                                        <span className="ml-1">×</span>
-                                    </Badge>
+                                                        <div
+                                                            className={cn(
+                                                                "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                                                                selectedSubjects.includes(subj)
+                                                                    ? "bg-primary text-primary-foreground"
+                                                                    : "opacity-50 [&_svg]:invisible"
+                                                            )}
+                                                        >
+                                                            <Check className={cn("h-4 w-4")} />
+                                                        </div>
+                                                        {subj}
+                                                    </CommandItem>
+                                                ))}
+                                            </CommandGroup>
+                                        </CommandList>
+                                    </Command>
+                                </PopoverContent>
+                            </Popover>
+                            {selectedSubjects.length > 0 && (
+                                <div className="flex flex-wrap gap-1 mt-2">
+                                    {selectedSubjects.map((subj) => (
+                                        <Badge key={subj} variant="secondary" className="text-xs cursor-pointer" onClick={() => toggleSubject(subj)}>
+                                            {subj}
+                                            <span className="ml-1">×</span>
+                                        </Badge>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <Separator />
+
+                        {/* Location Filter */}
+                        <div className="space-y-2">
+                            <Label>Location</Label>
+                            <Popover open={locationOpen} onOpenChange={setLocationOpen}>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        role="combobox"
+                                        aria-expanded={locationOpen}
+                                        className="w-full justify-between"
+                                    >
+                                        {location
+                                            ? LOCATIONS.find((loc) => loc === location) || location
+                                            : "Select location..."}
+                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-[300px] p-0">
+                                    <Command>
+                                        <CommandInput placeholder="Search location..." />
+                                        <CommandList>
+                                            <CommandEmpty>No location found.</CommandEmpty>
+                                            <CommandGroup>
+                                                {LOCATIONS.map((loc) => (
+                                                    <CommandItem
+                                                        key={loc}
+                                                        value={loc}
+                                                        onSelect={(currentValue) => {
+                                                            setLocation(currentValue === location ? "" : currentValue);
+                                                            setLocationOpen(false);
+                                                        }}
+                                                    >
+                                                        <Check
+                                                            className={cn(
+                                                                "mr-2 h-4 w-4",
+                                                                location === loc ? "opacity-100" : "opacity-0"
+                                                            )}
+                                                        />
+                                                        {loc}
+                                                    </CommandItem>
+                                                ))}
+                                            </CommandGroup>
+                                        </CommandList>
+                                    </Command>
+                                </PopoverContent>
+                            </Popover>
+                        </div>
+
+                        <Separator />
+
+                        {/* Class Range Filter */}
+                        <div className="space-y-3">
+                            <Label>Class Range</Label>
+                            <div className="grid grid-cols-2 gap-4">
+                                {CLASS_RANGES.map((cls) => (
+                                    <div key={cls} className="flex items-center space-x-2">
+                                        <Checkbox 
+                                            id={`class-${cls}`} 
+                                            checked={selectedClasses.includes(cls)}
+                                            onCheckedChange={() => toggleClassSelection(cls)}
+                                        />
+                                        <Label htmlFor={`class-${cls}`} className="leading-none cursor-pointer">
+                                            {cls}
+                                        </Label>
+                                    </div>
                                 ))}
                             </div>
-                        )}
-                    </div>
+                        </div>
 
-                    <Separator />
+                        <Separator />
 
-                    {/* Location Filter */}
-                    <div className="space-y-2">
-                        <Label>Location</Label>
-                        <Popover open={locationOpen} onOpenChange={setLocationOpen}>
-                            <PopoverTrigger asChild>
-                                <Button
-                                    variant="outline"
-                                    role="combobox"
-                                    aria-expanded={locationOpen}
-                                    className="w-full justify-between"
-                                >
-                                    {location
-                                        ? LOCATIONS.find((loc) => loc === location) || location
-                                        : "Select location..."}
-                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-[300px] p-0">
-                                <Command>
-                                    <CommandInput placeholder="Search location..." />
-                                    <CommandList>
-                                        <CommandEmpty>No location found.</CommandEmpty>
-                                        <CommandGroup>
-                                            {LOCATIONS.map((loc) => (
-                                                <CommandItem
-                                                    key={loc}
-                                                    value={loc}
-                                                    onSelect={(currentValue) => {
-                                                        setLocation(currentValue === location ? "" : currentValue);
-                                                        setLocationOpen(false);
-                                                    }}
-                                                >
-                                                    <Check
-                                                        className={cn(
-                                                            "mr-2 h-4 w-4",
-                                                            location === loc ? "opacity-100" : "opacity-0"
-                                                        )}
-                                                    />
-                                                    {loc}
-                                                </CommandItem>
-                                            ))}
-                                        </CommandGroup>
-                                    </CommandList>
-                                </Command>
-                            </PopoverContent>
-                        </Popover>
-                    </div>
-
-                    <Separator />
-
-                    {/* Class Range Filter */}
-                    <div className="space-y-3">
-                        <Label>Class Range</Label>
-                        <div className="grid grid-cols-2 gap-4">
-                            {CLASS_RANGES.map((cls) => (
-                                <div key={cls} className="flex items-center space-x-2">
-                                    <Checkbox 
-                                        id={`class-${cls}`} 
-                                        checked={selectedClasses.includes(cls)}
-                                        onCheckedChange={() => toggleClassSelection(cls)}
+                        {/* Price Filter */}
+                        <div className="space-y-3">
+                            <Label>Hourly Rate (₹)</Label>
+                            <div className="flex items-center gap-4">
+                                <div className="grid gap-1.5 flex-1">
+                                    <Label htmlFor="minPrice" className="text-xs text-muted-foreground">Min</Label>
+                                    <Input 
+                                        id="minPrice"
+                                        type="number" 
+                                        placeholder="0" 
+                                        value={minPrice} 
+                                        onChange={(e) => setMinPrice(e.target.value)} 
                                     />
-                                    <Label htmlFor={`class-${cls}`} className="leading-none cursor-pointer">
-                                        {cls}
-                                    </Label>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    <Separator />
-
-                    {/* Price Filter */}
-                    <div className="space-y-3">
-                        <Label>Hourly Rate (₹)</Label>
-                        <div className="flex items-center gap-4">
-                            <div className="grid gap-1.5 flex-1">
-                                <Label htmlFor="minPrice" className="text-xs text-muted-foreground">Min</Label>
-                                <Input 
-                                    id="minPrice"
-                                    type="number" 
-                                    placeholder="0" 
-                                    value={minPrice} 
-                                    onChange={(e) => setMinPrice(e.target.value)} 
-                                />
-                            </div>
-                            <div className="grid gap-1.5 flex-1">
-                                <Label htmlFor="maxPrice" className="text-xs text-muted-foreground">Max</Label>
-                                <Input 
-                                    id="maxPrice"
-                                    type="number" 
-                                    placeholder="2000+" 
-                                    value={maxPrice} 
-                                    onChange={(e) => setMaxPrice(e.target.value)} 
-                                />
+                                <div className="grid gap-1.5 flex-1">
+                                    <Label htmlFor="maxPrice" className="text-xs text-muted-foreground">Max</Label>
+                                    <Input 
+                                        id="maxPrice"
+                                        type="number" 
+                                        placeholder="2000+" 
+                                        value={maxPrice} 
+                                        onChange={(e) => setMaxPrice(e.target.value)} 
+                                    />
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <Separator />
+                        <Separator />
 
-                    {/* Rating Filter */}
-                    <div className="space-y-3">
-                         <Label>Minimum Rating</Label>
-                         <select 
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                            value={rating}
-                            onChange={(e) => setRating(e.target.value)}
-                        >
-                            <option value="">Any</option>
-                            <option value="4.5">4.5+ Stars</option>
-                            <option value="4">4.0+ Stars</option>
-                            <option value="3">3.0+ Stars</option>
-                        </select>
-                    </div>
+                        {/* Rating Filter */}
+                        <div className="space-y-3">
+                             <Label>Minimum Rating</Label>
+                             <select 
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                value={rating}
+                                onChange={(e) => setRating(e.target.value)}
+                            >
+                                <option value="">Any</option>
+                                <option value="4.5">4.5+ Stars</option>
+                                <option value="4">4.0+ Stars</option>
+                                <option value="3">3.0+ Stars</option>
+                            </select>
+                        </div>
 
-                    <div className="pt-4 flex gap-2">
-                        <Button className="flex-1" onClick={() => { fetchTutors(); }}>Apply Filters</Button>
-                        <Button variant="outline" onClick={clearFilters}>Reset</Button>
+                        <div className="pt-4 flex gap-2">
+                            <Button className="flex-1" onClick={() => { fetchTutors(); }}>Apply Filters</Button>
+                            <Button variant="outline" onClick={clearFilters}>Reset</Button>
+                        </div>
                     </div>
-                </div>
-            </SheetContent>
-        </Sheet>
+                </SheetContent>
+            </Sheet>
+        </div>
       </div>
-
-      {/* Main Search Bar */}
-
 
       {/* Results */}
       {isLoading ? (

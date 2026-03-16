@@ -8,9 +8,12 @@ const tutorProfileSchema = z.object({
   bio: z.string().optional(),
   subjects: z.array(z.string()).min(1, "At least one subject is required"),
   hourlyRate: z.number().min(0, "Hourly rate must be positive"),
+  experience: z.string().optional(),
+  classesTaught: z.string().optional(),
+  location: z.string().optional(),
 });
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions);
 
@@ -34,44 +37,42 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession();
-console.log(session);
+    const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== "TUTOR") {
-      console.log({ session:session, error: "Unauthorized" });
-      
-      return NextResponse.json( { session:session, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await req.json();
-    console.log(body);
     const validatedData = tutorProfileSchema.parse(body);
 
-    const profile = await prisma.tutorProfile.upsert(
-      {
-        where: { userId: session.user.id },
-        update: {
-          bio: validatedData.bio,
-          subjects: validatedData.subjects,
-          hourlyRate: validatedData.hourlyRate,
-        },
-        create: {
-          userId: session.user.id,
-          bio: validatedData.bio,
-          subjects: validatedData.subjects,
-          hourlyRate: validatedData.hourlyRate,
-        }
-      })
+    const profile = await prisma.tutorProfile.upsert({
+      where: { userId: session.user.id },
+      update: {
+        bio: validatedData.bio,
+        subjects: validatedData.subjects,
+        hourlyRate: validatedData.hourlyRate,
+        experience: validatedData.experience,
+        classesTaught: validatedData.classesTaught,
+        location: validatedData.location,
+      },
+      create: {
+        userId: session.user.id,
+        bio: validatedData.bio,
+        subjects: validatedData.subjects,
+        hourlyRate: validatedData.hourlyRate,
+        experience: validatedData.experience,
+        classesTaught: validatedData.classesTaught,
+        location: validatedData.location,
+      }
+    });
 
     return NextResponse.json(profile, { status: 201 });
-
+  } catch (error) {
+    console.error("Profile update error:", error);
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: "Validation failed", details: error.flatten() }, { status: 400 });
+    }
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
-  catch (error) {
-    console.log("try-catch error segment",error);
-    return NextResponse.json(error)
-
-  }
-
-
 }
-

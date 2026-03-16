@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { registerSchema, RegisterInput } from '@/src/lib/validation/authSchema';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/src/components/ui/button'; // Fixed import (user had bkp.button)
+import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
 import { Label } from '@/src/components/ui/label';
 import { Textarea } from '@/src/components/ui/textarea';
@@ -26,37 +26,59 @@ interface City {
     state: string;
 }
 
+const CLASSES_RANGE = [
+    "Nursery - KG",
+    "Class 1 - 5",
+    "Class 6 - 8",
+    "Class 9 - 10",
+    "Class 11 - 12 (Science)",
+    "Class 11 - 12 (Commerce)",
+    "Class 11 - 12 (Humanities)",
+    "College Students",
+    "Others"
+];
+
 export default function TutorRegisterPage() {
     const router = useRouter();
     const {
         register,
         handleSubmit,
         setValue,
+        watch,
         formState: { errors, isSubmitting }
     } = useForm<RegisterInput>({
         resolver: zodResolver(registerSchema),
-        defaultValues: { fullname: '', email: '', password: '', role: 'TUTOR', phoneNumber: '', subjects: [] }
+        defaultValues: { 
+            fullname: '', 
+            email: '', 
+            password: '', 
+            role: 'TUTOR', 
+            phoneNumber: '', 
+            subjects: [], 
+            classesTaught: [] 
+        }
     });
 
     const [docFile, setDocFile] = React.useState<File | null>(null);
     const [photoFile, setPhotoFile] = React.useState<File | null>(null);
     const [cities, setCities] = useState<City[]>([]);
     const [location, setLocation] = useState("");
-    const [open, setOpen] = useState(false);
-    const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
+    const [subjectsOpen, setSubjectsOpen] = useState(false);
+    const [classesOpen, setClassesOpen] = useState(false);
+
+    const selectedSubjects = watch('subjects') || [];
+    const selectedClasses = watch('classesTaught') || [];
+    const experienceType = watch('experienceType');
 
     useEffect(() => {
-        // Fetch Indian cities
         const fetchCities = async () => {
              try {
                  const res = await axios.get('https://raw.githubusercontent.com/nshntarora/Indian-Cities-JSON/master/cities.json');
-                 // The JSON is an array of objects
                  const cityList = (res.data as Array<{name: string, state: string}>).map((c, i) => ({
                      id: `${c.name}-${i}`,
                      name: c.name,
                      state: c.state
                  }));
-                 // Sort by name
                  cityList.sort((a: City, b: City) => a.name.localeCompare(b.name));
                  setCities(cityList);
              } catch (e) {
@@ -76,9 +98,11 @@ export default function TutorRegisterPage() {
             formData.append('role', 'TUTOR');
             
             if (data.bio) formData.append('bio', data.bio);
-            if (data.experience) formData.append('experience', data.experience);
+            if (data.experienceType) formData.append('experienceType', data.experienceType);
+            if (data.experienceYears) formData.append('experienceYears', data.experienceYears.toString());
             if (data.subjects && data.subjects.length > 0) formData.append('subjects', JSON.stringify(data.subjects));
-            if (data.classesTaught) formData.append('classesTaught', data.classesTaught);
+            if (data.subjectsOthers) formData.append('subjectsOthers', data.subjectsOthers);
+            if (data.classesTaught && data.classesTaught.length > 0) formData.append('classesTaught', JSON.stringify(data.classesTaught));
             if (data.adhaarId) formData.append('adhaarId', data.adhaarId);
             if (location) formData.append('location', location);
 
@@ -153,20 +177,40 @@ export default function TutorRegisterPage() {
                              <Textarea id="bio" placeholder="Tell us about yourself..." {...register('bio')} />
                         </div>
 
-                         <div className="space-y-2">
-                             <Label htmlFor="experience">Experience</Label>
-                             <Textarea id="experience" placeholder="Describe your teaching experience..." {...register('experience')} />
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="experienceType">Experience</Label>
+                                <Select onValueChange={(val) => setValue('experienceType', val as any)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select experience" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="< 1 years">&lt; 1 years</SelectItem>
+                                        <SelectItem value="2">2 years</SelectItem>
+                                        <SelectItem value="3">3 years</SelectItem>
+                                        <SelectItem value="4">4 years</SelectItem>
+                                        <SelectItem value="more than 5">More than 5 years</SelectItem>
+                                        <SelectItem value="others">Others</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            {experienceType === 'others' && (
+                                <div className="space-y-2">
+                                    <Label htmlFor="experienceYears">Enter your experience (years)</Label>
+                                    <Input id="experienceYears" type="number" placeholder="e.g. 10" {...register('experienceYears')} />
+                                </div>
+                            )}
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                            <div className="space-y-2 flex flex-col">
                                 <Label className='mb-2'>Subjects</Label>
-                                <Popover open={open} onOpenChange={setOpen}>
+                                <Popover open={subjectsOpen} onOpenChange={setSubjectsOpen}>
                                     <PopoverTrigger asChild>
                                         <Button
                                             variant="outline"
                                             role="combobox"
-                                            aria-expanded={open}
+                                            aria-expanded={subjectsOpen}
                                             className="w-full justify-between"
                                         >
                                             {selectedSubjects.length > 0
@@ -181,20 +225,15 @@ export default function TutorRegisterPage() {
                                             <CommandList>
                                                 <CommandEmpty>No subject found.</CommandEmpty>
                                                 <CommandGroup className="max-h-[200px] overflow-auto">
-                                                    {SUBJECTS.map((subject) => (
+                                                    {[...SUBJECTS, "Others"].map((subject) => (
                                                         <CommandItem
                                                             key={subject}
                                                             value={subject}
                                                             onSelect={(currentValue) => {
-                                                                // Toggle selection
                                                                 const isSelected = selectedSubjects.includes(currentValue);
-                                                                let newSubjects;
-                                                                if (isSelected) {
-                                                                    newSubjects = selectedSubjects.filter(s => s !== currentValue);
-                                                                } else {
-                                                                    newSubjects = [...selectedSubjects, currentValue];
-                                                                }
-                                                                setSelectedSubjects(newSubjects);
+                                                                const newSubjects = isSelected
+                                                                    ? selectedSubjects.filter(s => s !== currentValue)
+                                                                    : [...selectedSubjects, currentValue];
                                                                 setValue('subjects', newSubjects, { shouldValidate: true });
                                                             }}
                                                         >
@@ -217,21 +256,10 @@ export default function TutorRegisterPage() {
                                         <Badge key={subject} variant="secondary" className="mr-1">
                                             {subject}
                                             <button
+                                                type="button"
                                                 className="ml-1 ring-offset-background rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                                                onKeyDown={(e) => {
-                                                    if (e.key === "Enter") {
-                                                        const newSubjects = selectedSubjects.filter((s) => s !== subject);
-                                                        setSelectedSubjects(newSubjects);
-                                                        setValue('subjects', newSubjects, { shouldValidate: true });
-                                                    }
-                                                }}
-                                                onMouseDown={(e) => {
-                                                    e.preventDefault();
-                                                    e.stopPropagation();
-                                                }}
                                                 onClick={() => {
                                                     const newSubjects = selectedSubjects.filter((s) => s !== subject);
-                                                    setSelectedSubjects(newSubjects);
                                                     setValue('subjects', newSubjects, { shouldValidate: true });
                                                 }}
                                             >
@@ -240,20 +268,89 @@ export default function TutorRegisterPage() {
                                         </Badge>
                                     ))}
                                 </div>
+                                {selectedSubjects.includes("Others") && (
+                                    <div className="mt-2">
+                                        <Label htmlFor="subjectsOthers">Please explain</Label>
+                                        <Input id="subjectsOthers" placeholder="e.g. Guitar, Chess, etc." {...register('subjectsOthers')} />
+                                    </div>
+                                )}
                                 {errors.subjects && <p className="text-red-500 text-sm">{errors.subjects.message}</p>}
                             </div>
-                             <div className="space-y-2">
-                                <Label htmlFor="classesTaught">Classes Range</Label>
-                                <Input id="classesTaught" placeholder="Class 1-5, 6-10, etc." {...register('classesTaught')} />
+
+                             <div className="space-y-2 flex flex-col">
+                                <Label className='mb-2'>Classes Range</Label>
+                                <Popover open={classesOpen} onOpenChange={setClassesOpen}>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            role="combobox"
+                                            aria-expanded={classesOpen}
+                                            className="w-full justify-between"
+                                        >
+                                            {selectedClasses.length > 0
+                                                ? `${selectedClasses.length} selected`
+                                                : "Select classes..."}
+                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-[400px] p-0">
+                                        <Command>
+                                            <CommandInput placeholder="Search classes..." />
+                                            <CommandList>
+                                                <CommandEmpty>No range found.</CommandEmpty>
+                                                <CommandGroup className="max-h-[200px] overflow-auto">
+                                                    {CLASSES_RANGE.map((cl) => (
+                                                        <CommandItem
+                                                            key={cl}
+                                                            value={cl}
+                                                            onSelect={(currentValue) => {
+                                                                const isSelected = selectedClasses.includes(currentValue);
+                                                                const newClasses = isSelected
+                                                                    ? selectedClasses.filter(c => c !== currentValue)
+                                                                    : [...selectedClasses, currentValue];
+                                                                setValue('classesTaught', newClasses, { shouldValidate: true });
+                                                            }}
+                                                        >
+                                                            <Check
+                                                                className={cn(
+                                                                    "mr-2 h-4 w-4",
+                                                                    selectedClasses.includes(cl) ? "opacity-100" : "opacity-0"
+                                                                )}
+                                                            />
+                                                            {cl}
+                                                        </CommandItem>
+                                                    ))}
+                                                </CommandGroup>
+                                            </CommandList>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                    {selectedClasses.map((cl) => (
+                                        <Badge key={cl} variant="secondary" className="mr-1">
+                                            {cl}
+                                            <button
+                                                type="button"
+                                                className="ml-1 ring-offset-background rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                                onClick={() => {
+                                                    const newClasses = selectedClasses.filter((c) => c !== cl);
+                                                    setValue('classesTaught', newClasses, { shouldValidate: true });
+                                                }}
+                                            >
+                                                <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                                            </button>
+                                        </Badge>
+                                    ))}
+                                </div>
+                                {errors.classesTaught && <p className="text-red-500 text-sm">{errors.classesTaught.message}</p>}
                             </div>
                         </div>
 
                         <div className="space-y-2">
                              <Label>Location (City)</Label>
-                             {/* Radix UI Select Integration */}
                              <Select onValueChange={(val) => {
                                  setLocation(val);
-                                 setValue('location', val); 
+                                 setValue('location', val as any); 
                              }}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select a city" />

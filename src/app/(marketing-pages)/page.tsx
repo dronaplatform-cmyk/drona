@@ -141,7 +141,7 @@ export default function Home() {
     <>
 
       <Hero />
-      <main className='px-6 bg-muted/30 shadow-2xl backdrop-brightness-25 rounded-tl-2xl rounded-tr-2xl' >
+      <main className='px-6    rounded-tl-2xl rounded-tr-2xl' >
         <Features />
         <Gallery items={galleryData} />
         <Testimonial />

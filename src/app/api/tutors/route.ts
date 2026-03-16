@@ -1,9 +1,11 @@
-import { NextResponse } from "next/server";
 import prisma from "@/src/lib/prisma";
+import { Prisma } from "@prisma/client";
+import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
+    const query = searchParams.get("query");
     const subject = searchParams.get("subject");
     const location = searchParams.get("location");
     const classesTaught = searchParams.get("classesTaught");
@@ -11,7 +13,14 @@ export async function GET(req: Request) {
     const maxPrice = searchParams.get("maxPrice");
     const rating = searchParams.get("rating");
 
-    const whereClause: Record<string, any> = {};
+    const whereClause: Prisma.TutorProfileWhereInput = {};
+
+    if (query) {
+      whereClause.OR = [
+        { user: { fullname: { contains: query, mode: "insensitive" } } },
+        { bio: { contains: query, mode: "insensitive" } },
+      ];
+    }
 
     if (subject) {
       const subjectsArray = subject.split(',').map(s => s.trim()).filter(Boolean);

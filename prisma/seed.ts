@@ -25,8 +25,8 @@ async function main() {
   // await prisma.user.deleteMany();
 
   // 1. Create Tutors
-  const numOfHardcodedTutors = 50;
-  const numOfHardcodedParent = 10; // User said 100 tutors, didn't specify parents but 120 seems high relative to 100. I'll reduce to 50 for speed.
+  const numOfHardcodedTutors = 5;
+  const numOfHardcodedParent = 3; // User said 100 tutors, didn't specify parents but 120 seems high relative to 100. I'll reduce to 50 for speed.
 
   console.log(`Creating ${numOfHardcodedTutors} Tutors...`);
   const tutors = [];

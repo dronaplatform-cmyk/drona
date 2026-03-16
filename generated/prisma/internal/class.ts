@@ -17,8 +17,8 @@ import type * as Prisma from "./prismaNamespace.ts"
 
 const config: runtime.GetPrismaClientConfig = {
   "previewFeatures": [],
-  "clientVersion": "7.1.0",
-  "engineVersion": "ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba",
+  "clientVersion": "7.0.1",
+  "engineVersion": "f09f2815f091dbba658cdcd2264306d88bb5bda6",
   "activeProvider": "postgresql",
   "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  // url      = env(\"DATABASE_URL\")\n}\n\nenum UserRole {\n  STUDENT\n  PARENT\n  TUTOR\n  USER // default when no data would be received\n  ADMIN // For system oversight, managing profiles, etc. (future expansion)\n}\n\nenum ClassStatus {\n  SCHEDULED\n  IN_PROGRESS\n  COMPLETED\n  CANCELLED\n}\n\nmodel Ping {\n  id        Int      @id @default(autoincrement())\n  message   String   @default(\"pong\")\n  createdAt DateTime @default(now())\n}\n\nmodel Account {\n  id                 String    @id @default(cuid())\n  userId             String\n  providerType       String\n  providerId         String\n  providerAccountId  String\n  refreshToken       String?\n  accessToken        String?\n  accessTokenExpires DateTime?\n  createdAt          DateTime  @default(now())\n  updatedAt          DateTime  @updatedAt\n  user               User      @relation(fields: [userId], references: [id])\n\n  @@unique([providerId, providerAccountId])\n}\n\nmodel Session {\n  id           String   @id @default(cuid())\n  userId       String\n  expires      DateTime\n  sessionToken String   @unique\n  accessToken  String   @unique\n  createdAt    DateTime @default(now())\n  updatedAt    DateTime @updatedAt\n  user         User     @relation(fields: [userId], references: [id])\n}\n\nmodel User {\n  id          String   @id @default(uuid())\n  username    String   @unique\n  email       String?  @unique\n  password    String?\n  fullname    String\n  role        UserRole @default(USER)\n  phoneNumber String?  @unique\n\n  isVerified               Boolean?  @default(false)\n  verificationDocument     String? // URL to uploaded ID proof\n  verficationToken         String?\n  verficationTokenExpiry   DateTime?\n  passwordResetToken       String?\n  passwordResetTokenExpiry DateTime?\n  image                    String? // Profile photo\n  profileImage             String? // Explicit profile image as requested\n\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n  accounts  Account[]\n  sessions  Session[]\n\n  // Role specific\n  tutorProfile TutorProfile?\n  students     Student[]     @relation(\"ParentStudents\") // For Parents\n  queries      Query[]       @relation(\"ParentQueries\")\n  payments     Payment[]     @relation(\"ParentPayments\")\n}\n\nmodel TutorProfile {\n  id     String @id @default(cuid())\n  userId String @unique\n  user   User   @relation(fields: [userId], references: [id])\n\n  subjects      String[]\n  bio           String?\n  experience    String?\n  classesTaught String?\n  adhaarId      String?\n  hourlyRate    Decimal?\n  rating        Float?   @default(0)\n  location      String?\n  isVerified    Boolean  @default(false)\n\n  classes   Class[]\n  resources Resource[]\n  queries   Query[]\n  payments  Payment[]\n}\n\nmodel Resource {\n  id      String       @id @default(cuid())\n  tutorId String\n  tutor   TutorProfile @relation(fields: [tutorId], references: [id])\n\n  classId String?\n  class   Class?  @relation(fields: [classId], references: [id])\n\n  title   String\n  type    ResourceType\n  url     String?\n  content String?\n\n  size     Int?\n  mimeType String?\n\n  createdAt DateTime @default(now())\n}\n\nenum ResourceType {\n  PDF\n  LINK\n  TEXT\n  IMAGE\n}\n\nmodel Student {\n  id       String @id @default(cuid())\n  parentId String\n  parent   User   @relation(\"ParentStudents\", fields: [parentId], references: [id])\n\n  name     String\n  password String // Simple password set by parent\n\n  // Extended Profile\n  age         Int?\n  photo       String?\n  school      String?\n  aspirations String?\n  interests   String[]\n\n  classes   Class[]\n  homeworks Homework[]\n  reports   Report[]\n  queries   Query[]\n}\n\nmodel Class {\n  id        String       @id @default(cuid())\n  tutorId   String\n  tutor     TutorProfile @relation(fields: [tutorId], references: [id])\n  studentId String\n  student   Student      @relation(fields: [studentId], references: [id])\n\n  scheduledAt      DateTime\n  status           ClassStatus @default(SCHEDULED)\n  attendanceToken  String?\n  verificationDate DateTime?\n  endTime          DateTime?\n  createdAt        DateTime    @default(now())\n\n  homeworks Homework[]\n  resources Resource[]\n}\n\nmodel Homework {\n  id        String  @id @default(cuid())\n  classId   String\n  class     Class   @relation(fields: [classId], references: [id])\n  studentId String\n  student   Student @relation(fields: [studentId], references: [id])\n\n  title       String\n  description String?\n  dueDate     DateTime?\n  isCompleted Boolean   @default(false)\n}\n\nmodel Report {\n  id        String  @id @default(cuid())\n  studentId String\n  student   Student @relation(fields: [studentId], references: [id])\n\n  title     String\n  feedback  String\n  grade     String?\n  createdAt DateTime @default(now())\n}\n\nmodel VerificationRequest {\n  id         String   @id @default(cuid())\n  identifier String\n  token      String   @unique\n  expires    DateTime\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @updatedAt\n\n  @@unique([identifier, token])\n}\n\nmodel Query {\n  id      String @id @default(cuid())\n  content String\n\n  // Sender info\n  senderId   String\n  senderRole UserRole\n\n  // Context\n  tutorId String\n  tutor   TutorProfile @relation(fields: [tutorId], references: [id])\n\n  studentId String?\n  student   Student? @relation(fields: [studentId], references: [id])\n\n  parentId String?\n  parent   User?   @relation(\"ParentQueries\", fields: [parentId], references: [id])\n\n  context QueryContext\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  responses QueryResponse[]\n}\n\nmodel QueryResponse {\n  id      String @id @default(cuid())\n  queryId String\n  query   Query  @relation(fields: [queryId], references: [id])\n\n  content String\n\n  senderId   String\n  senderRole UserRole\n\n  createdAt DateTime @default(now())\n}\n\nenum QueryContext {\n  TUTOR_PARENT\n  TUTOR_STUDENT\n}\n\nmodel Payment {\n  id       String        @id @default(cuid())\n  amount   Decimal\n  currency String        @default(\"INR\")\n  status   PaymentStatus @default(PENDING)\n\n  parentId String\n  parent   User   @relation(\"ParentPayments\", fields: [parentId], references: [id])\n\n  tutorId String?\n  tutor   TutorProfile? @relation(fields: [tutorId], references: [id])\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nenum PaymentStatus {\n  PENDING\n  COMPLETED\n  FAILED\n}\n",
   "runtimeDataModel": {
@@ -62,7 +62,7 @@ export interface PrismaClientConstructor {
    * const pings = await prisma.ping.findMany()
    * ```
    * 
-   * Read more in our [docs](https://pris.ly/d/client).
+   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
    */
 
   new <
@@ -84,7 +84,7 @@ export interface PrismaClientConstructor {
  * const pings = await prisma.ping.findMany()
  * ```
  * 
- * Read more in our [docs](https://pris.ly/d/client).
+ * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
  */
 
 export interface PrismaClient<
@@ -113,7 +113,7 @@ export interface PrismaClient<
    * const result = await prisma.$executeRaw`UPDATE User SET cool = ${true} WHERE email = ${'user@email.com'};`
    * ```
    *
-   * Read more in our [docs](https://pris.ly/d/raw-queries).
+   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
    */
   $executeRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<number>;
 
@@ -125,7 +125,7 @@ export interface PrismaClient<
    * const result = await prisma.$executeRawUnsafe('UPDATE User SET cool = $1 WHERE email = $2 ;', true, 'user@email.com')
    * ```
    *
-   * Read more in our [docs](https://pris.ly/d/raw-queries).
+   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
    */
   $executeRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<number>;
 
@@ -136,7 +136,7 @@ export interface PrismaClient<
    * const result = await prisma.$queryRaw`SELECT * FROM User WHERE id = ${1} OR email = ${'user@email.com'};`
    * ```
    *
-   * Read more in our [docs](https://pris.ly/d/raw-queries).
+   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
    */
   $queryRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<T>;
 
@@ -148,7 +148,7 @@ export interface PrismaClient<
    * const result = await prisma.$queryRawUnsafe('SELECT * FROM User WHERE id = $1 OR email = $2;', 1, 'user@email.com')
    * ```
    *
-   * Read more in our [docs](https://pris.ly/d/raw-queries).
+   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
    */
   $queryRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<T>;
 
