@@ -111,6 +111,9 @@ export const LandingFooter = ({
                 </li>
               ))}
             </ul> */}
+            <ul className="text-muted-foreground flex items-center space-x-6">
+              <p>admin@dronaedtech.in</p>
+            </ul>
           </div>
           <div className="grid w-full gap-6 md:grid-cols-3 lg:gap-20">
             {sections.map((section, sectionIdx) => (

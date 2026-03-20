@@ -83,8 +83,8 @@ export const Hero = ({ badge = "✨ Trusted by Parents & Tutors"
     src: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070&auto=format&fit=crop",
     alt: "Students learning",
   } }: Hero1Props) => {
-   
-    return (
+
+  return (
     <>
 
 
@@ -121,7 +121,7 @@ export const Hero = ({ badge = "✨ Trusted by Parents & Tutors"
             </div>
           </div>
           <div className="h-screen  w-screen  relative   hidden sm:block object-cover">
-<Image  className=" opacity-50 mix-blend-multiply transform scale-200 dark:mix-blend-soft-light  animate-spin animation-duration-[100s]" src={'/mandala.svg'} fill alt="mandala"></Image>
+            <Image className=" opacity-50 mix-blend-multiply transform scale-200 dark:mix-blend-soft-light  animate-spin animation-duration-[100s]" src={'/mandala.svg'} fill alt="mandala"></Image>
             {/* <Dithering
               style={{ height: "100%", width: "100%" }}
               colorBack={true ? "#04071000" : "#f8faff00"}
@@ -135,8 +135,8 @@ export const Hero = ({ badge = "✨ Trusted by Parents & Tutors"
               rotation={0}
               speed={0.1}
             /> */}
-  {/* <HoleBackground className="   absolute inset-0 flex items-center justify-center rounded-xl" /> */}
- 
+            {/* <HoleBackground className="   absolute inset-0 flex items-center justify-center rounded-xl" /> */}
+
           </div>
 
 
@@ -239,7 +239,7 @@ export const Feature51 = ({
                     </span>
                   )}
                   <p className="text-lg  text-balance transition-opacity duration-200 md:text-2xl lg:text-xl">
-                    {tab.heading} 
+                    {tab.heading}
                   </p>
                 </div>
                 <p className="text-muted-foreground font-normal transition-opacity duration-200 md:block">
@@ -790,7 +790,7 @@ const FeatureSecondary51 = ({
       description:
         "Discover the powerful featureSecondarys that make our platform stand out from the rest.",
       image: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/placeholder-1.svg",
-      url: "https://drona-beta",
+      url: "https://www.dronaedtech.in",
       isDefault: true,
     },
     {
@@ -801,7 +801,7 @@ const FeatureSecondary51 = ({
       description:
         "Built with the latest technology and designed for maximum productivity.",
       image: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/placeholder-2.svg",
-      url: "https://drona-beta",
+      url: "https://www.dronaedtech.in",
       isDefault: false,
     },
     {
@@ -811,7 +811,7 @@ const FeatureSecondary51 = ({
       description:
         "Create amazing experiences with our comprehensive toolkit and resources.",
       image: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/placeholder-3.svg",
-      url: "https://drona-beta",
+      url: "https://www.dronaedtech.in",
       isDefault: false,
     },
   ],

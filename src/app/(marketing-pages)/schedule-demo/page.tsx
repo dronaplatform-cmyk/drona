@@ -351,7 +351,7 @@ const ScheduleDemo = ({
     description: {
       text: "Book a demo to explore our development platform and discover how it can accelerate your team's productivity. If you have technical questions, feel free to reach out to our team.",
       hyperlink: "reach out to our team",
-      url: "https://drona-beta",
+      url: "https://www.dronaedtech.in",
     },
     avatars: [
       {

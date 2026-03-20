@@ -20,9 +20,9 @@ interface Contact2Props {
 export default function ContactPage({
   title = "Contact Us",
   description = "We are available for questions, feedback, or collaboration opportunities. Let us know how we can help!",
-  phone = "(123) 34567890",
-  email = "contact@drona-beta.com",
-  web = { label: "drona-beta", url: "https://drona-beta" },
+  phone = "+91 9876543210",
+  email = "admin@dronaedtech.in",
+  web = { label: "Drona", url: "https://www.dronaedtech.in" },
 }: Contact2Props) {
   return (
     <>
