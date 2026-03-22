@@ -1,17 +1,18 @@
 import * as prismic from '@prismicio/client';
 import * as prismicNext from '@prismicio/next';
 
-export const repositoryName = 'dronacontent';
+export const repositoryName = 'dronaedtech';
 
 const routes: prismic.ClientConfig['routes'] = [
   {
     type: 'blog_post',
     path: '/blogs/:uid',
   },
-  {
-    type: 'legal_page',
-    path: '/:uid',
-  },
+  // TODO: Uncomment once you create the 'legal_page' type in Slice Machine!
+  // {
+  //   type: 'legal_page',
+  //   path: '/:uid',
+  // },
 ];
 
 export const createClient = (config: prismicNext.CreateClientConfig = {}) => {
