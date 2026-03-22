@@ -1,7 +1,7 @@
 
 import prisma from '../src/lib/prisma.ts';
 import { UserRole, ClassStatus, ResourceType } from '../generated/prisma/client';
-import { fakerEN_IN as faker} from '@faker-js/faker';
+import { fakerEN_IN as faker } from '@faker-js/faker';
 import bcrypt from 'bcryptjs';
 import sensiLorem from 'sensible-lorem';
 
@@ -13,7 +13,7 @@ const LOCATIONS = ['Delhi', 'Mumbai', 'Bangalore', 'Chennai', 'Kolkata', 'Hydera
 async function main() {
   console.log('🌱 Starting seeding...');
 
-  // Optional: Cleanup existing data (Be careful in production!)
+  // Opt ional: Cleanup existing data (Be careful in production!)
   // await prisma.queryResponse.deleteMany();
   // await prisma.query.deleteMany();
   // await prisma.report.deleteMany();
@@ -32,12 +32,16 @@ async function main() {
   const tutors = [];
   for (let i = 0; i < numOfHardcodedTutors; i++) {
     const pfp = faker.image.avatar();
+    const firstName = faker.person.firstName('female');
+    const lastName = faker.person.lastName('female');
+    const fullName = `${firstName} ${lastName}`;
+    const email = faker.internet.email({ firstName, lastName }).toLowerCase();
 
     const user = await prisma.user.create({
       data: {
-        fullname: faker.person.fullName(),
-        username: faker.internet.username().toLowerCase(),
-        email: faker.internet.email().toLowerCase(),
+        fullname: fullName,
+        username: faker.internet.username({ firstName, lastName }).toLowerCase(),
+        email: email,
         password: await bcrypt.hash('123', 10),
         role: UserRole.TUTOR,
         phoneNumber: faker.phone.number(),
@@ -69,13 +73,16 @@ async function main() {
   const students = [];
 
   for (let i = 0; i < numOfHardcodedParent; i++) {
-    const lastName = faker.person.lastName();
+    const firstName = faker.person.firstName('female');
+    const lastName = faker.person.lastName('female');
+    const fullName = `${firstName} ${lastName}`;
+    const email = faker.internet.email({ firstName, lastName }).toLowerCase();
 
     const parent = await prisma.user.create({
       data: {
-        fullname: faker.person.fullName(), // Fixed: name -> fullname
-        username: faker.internet.username().toLowerCase(),
-        email: faker.internet.email().toLowerCase(),
+        fullname: fullName, // Fixed: name -> fullname
+        username: faker.internet.username({ firstName, lastName }).toLowerCase(),
+        email: email,
         phoneNumber: faker.phone.number(),
         password: await bcrypt.hash('123', 10),
         role: UserRole.PARENT,
