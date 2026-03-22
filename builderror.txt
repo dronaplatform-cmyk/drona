@@ -1,0 +1,10 @@
+Prisma schema loaded from prisma\schema.prisma
+
+✔ Generated Prisma Client (7.0.1) to .\generated\prisma in 83ms
+
+   ▲ Next.js 16.0.10 (Turbopack)
+   - Environments: .env
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 4.7s
+   Running TypeScript ...

@@ -1,5 +1,4 @@
 import prisma from "@/src/lib/prisma";
-import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
@@ -13,7 +12,7 @@ export async function GET(req: Request) {
     const maxPrice = searchParams.get("maxPrice");
     const rating = searchParams.get("rating");
 
-    const whereClause: Prisma.TutorProfileWhereInput = {};
+    const whereClause: any = {};
 
     if (query) {
       whereClause.OR = [

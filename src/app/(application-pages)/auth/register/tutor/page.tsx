@@ -47,7 +47,7 @@ export default function TutorRegisterPage() {
         watch,
         formState: { errors, isSubmitting }
     } = useForm<RegisterInput>({
-        resolver: zodResolver(registerSchema),
+        resolver: zodResolver(registerSchema) as any,
         defaultValues: { 
             fullname: '', 
             email: '', 

@@ -19,7 +19,7 @@ export default function ParentRegisterPage() {
         handleSubmit,
         formState: { errors, isSubmitting }
     } = useForm<RegisterInput>({
-        resolver: zodResolver(registerSchema),
+        resolver: zodResolver(registerSchema) as any,
         defaultValues: { fullname: '', email: '', password: '', role: 'PARENT', phoneNumber: '' }
     });
 
