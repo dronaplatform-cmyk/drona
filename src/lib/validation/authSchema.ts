@@ -19,6 +19,9 @@ export const registerSchema = z.object({
     phoneNumber: z.string()
         .min(10, "Phone number must be at least 10 digits.")
         .max(15, "Phone number must be at most 15 digits."),
+    agreeTerms: z.boolean().refine((val) => val === true, {
+        message: "Please accept the terms to continue.",
+    }),
 });
 
 // Export the inferred TypeScript type for type safety across the app

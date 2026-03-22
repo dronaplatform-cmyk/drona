@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { IconLoader2 } from "@tabler/icons-react";
 import { Badge } from "@/src/components/ui/badge";
 import { useRouter } from "next/navigation";
+import { OnboardingModal } from "@/src/components/dashboard/OnboardingModal";
 
 import { Button } from "@/src/components/ui/button";
 import {
@@ -53,6 +54,7 @@ export default function TutorDashboard() {
 
   return (
     <div className="space-y-8">
+      <OnboardingModal userRole="TUTOR" />
       <Tabs defaultValue="classes" className="space-y-4">
         <TabsList>
           <TabsTrigger value="classes">Today's Classes</TabsTrigger>

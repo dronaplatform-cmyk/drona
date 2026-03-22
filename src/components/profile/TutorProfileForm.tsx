@@ -387,6 +387,14 @@ export default function TutorProfileForm() {
                             onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                         />
                       </FormControl>
+                      {field.value > 0 && (
+                          <div className="text-xs mt-2 text-green-600 flex items-center flex-wrap gap-2">
+                              <span>Estimated Monthly Net Payout: ₹{Math.round((field.value * 30) * 0.97)}</span>
+                              <a href="/terms" target="_blank" className="text-primary hover:underline ml-auto">
+                                  View Commission Breakdown
+                              </a>
+                          </div>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}

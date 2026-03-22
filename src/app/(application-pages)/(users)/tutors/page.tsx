@@ -357,9 +357,15 @@ export default function FindTutorPage() {
                                 {tutor.location || "Online"}
                             </CardDescription>
                         </div>
-                        <Badge variant="outline" className="text-sm font-semibold whitespace-nowrap">
-                            ₹{tutor.hourlyRate}/hr
-                        </Badge>
+                        {tutor.hourlyRate ? (
+                            <Badge variant="outline" className="text-sm font-semibold whitespace-nowrap bg-green-50 text-green-700 border-green-200">
+                                ₹{tutor.hourlyRate}/hr
+                            </Badge>
+                        ) : (
+                            <Badge variant="outline" className="text-sm font-semibold whitespace-nowrap text-muted-foreground">
+                                Rate not set
+                            </Badge>
+                        )}
                     </div>
                 </CardHeader>
                 <CardContent>

@@ -35,6 +35,7 @@ import { IconLoader2, IconUserPlus, IconUsers, IconCalendarPlus, IconSearch } fr
 import { toast } from "sonner";
 import { bookClass, searchTutors } from "@/src/app/actions/booking";
 import { useSession } from "next-auth/react";
+import { OnboardingModal } from "@/src/components/dashboard/OnboardingModal";
 
 const createStudentSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -166,6 +167,7 @@ export default function ParentDashboard() {
 
   return (
     <div className="space-y-8">
+      <OnboardingModal userRole="PARENT" />
       {/* ... Add Student & List Cards (unchanged) ... */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {/* Add Student Form */}

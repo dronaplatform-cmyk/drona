@@ -1,3 +1,7 @@
+```
+docker run --name postgres -p 5432:5432 -e POSTGRES_USER="manmeets" -e POSTGRES_PASSWORD="admin"  -e POSTGRES_DB="drona" -d postgres:latest
+```
+
 # 🎓 Drona - Modern Educational Platform
 
 > Connecting passionate educators with eager learners through a comprehensive, feature-rich tutoring ecosystem.

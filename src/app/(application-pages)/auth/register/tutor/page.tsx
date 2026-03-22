@@ -12,6 +12,7 @@ import { Label } from '@/src/components/ui/label';
 import { Textarea } from '@/src/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/src/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/src/components/ui/select';
+import { Checkbox } from "@/src/components/ui/checkbox";
 import Link from 'next/link';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/src/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/src/components/ui/popover";
@@ -55,7 +56,8 @@ export default function TutorRegisterPage() {
             role: 'TUTOR', 
             phoneNumber: '', 
             subjects: [], 
-            classesTaught: [] 
+            classesTaught: [],
+            agreeTerms: false
         }
     });
 
@@ -390,8 +392,20 @@ export default function TutorRegisterPage() {
                             </div>
                         </div>
 
-                        <Button type="submit" className="w-full" disabled={isSubmitting}>
-                            {isSubmitting ? 'Registering...' : 'Register as Tutor'}
+                        <div className="flex items-center space-x-2 pt-2">
+                           <Checkbox 
+                               id="terms" 
+                               checked={watch('agreeTerms')} 
+                               onCheckedChange={(checked) => setValue('agreeTerms', checked as boolean, { shouldValidate: true })}
+                           />
+                           <label htmlFor="terms" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                               I agree to the <Link href="/terms" className="text-primary hover:underline" target="_blank">Terms & Conditions</Link> and <Link href="/privacy" className="text-primary hover:underline" target="_blank">Privacy Policy</Link>.
+                           </label>
+                        </div>
+                        {errors.agreeTerms && <p className="text-red-500 text-sm">{errors.agreeTerms.message}</p>}
+
+                        <Button type="submit" className="w-full" disabled={isSubmitting || !watch('agreeTerms')}>
+                            {isSubmitting ? ((photoFile || docFile) ? 'Uploading...' : 'Registering...') : 'Register as Tutor'}
                         </Button>
                     </form>
                 </CardContent>
