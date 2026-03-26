@@ -69,9 +69,12 @@ export const LandingHeader = () => {
           className="flex items-center gap-2"
         >
 
-          <span className="text-lg font-medium tracking-tighter">
-         <IconChalkboardTeacher className="inline-flex mb-0.5 text-primary" size={18}/>   Drona
-          </span>
+          <div className="flex flex-col items-start -space-y-1">
+            <span className="text-lg font-medium tracking-tighter flex items-center gap-1">
+              <IconChalkboardTeacher className="text-primary" size={18}/> Drona
+            </span>
+            <span className="text-[10px] font-bold text-primary tracking-widest pl-6 uppercase">Beta</span>
+          </div>
         </Link>
         <NavigationMenu className="hidden  lg:block">
           <NavigationMenuList>
@@ -166,9 +169,12 @@ export const LandingHeader = () => {
                     href="/"
                     className="flex items-center gap-2"
                   >
-                    <span className="text-lg  tracking-tighter">
-                      Drona
-                    </span>
+                    <div className="flex flex-col items-start -space-y-1">
+                      <span className="text-lg tracking-tighter flex items-center gap-1">
+                        Drona
+                      </span>
+                      <span className="text-[10px] font-bold text-primary tracking-widest uppercase">Beta</span>
+                    </div>
                   </Link>
                 </SheetTitle>
               </SheetHeader>
@@ -275,9 +281,12 @@ export const AuthenticationPageHeader = () => {
           className="flex items-center gap-2"
         >
 
-          <span className="text-lg font-medium tracking-tighter">
-         <IconChalkboardTeacher className="inline-flex mb-0.5 text-primary" size={18}/>   Drona
-          </span>
+          <div className="flex flex-col items-start -space-y-1">
+            <span className="text-lg font-medium tracking-tighter flex items-center gap-1">
+              <IconChalkboardTeacher className="text-primary" size={18}/> Drona
+            </span>
+            <span className="text-[10px] font-bold text-primary tracking-widest pl-6 uppercase">Beta</span>
+          </div>
         </Link>
         {/* <NavigationMenu className="hidden  lg:block">
           <NavigationMenuList>
@@ -372,9 +381,12 @@ export const AuthenticationPageHeader = () => {
                     href="/"
                     className="flex items-center gap-2"
                   >
-                    <span className="text-lg  tracking-tighter">
-                      Drona
-                    </span>
+                    <div className="flex flex-col items-start -space-y-1">
+                      <span className="text-lg tracking-tighter flex items-center gap-1">
+                        Drona
+                      </span>
+                      <span className="text-[10px] font-bold text-primary tracking-widest uppercase">Beta</span>
+                    </div>
                   </Link>
                 </SheetTitle>
               </SheetHeader>

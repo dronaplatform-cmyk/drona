@@ -15,9 +15,9 @@ export async function GET(request: Request) {
     let data;
 
     if (uid) {
-      data = await client.getByUID(type, uid);
+      data = await client.getByUID(type as any, uid);
     } else {
-      data = await client.getByType(type);
+      data = await client.getByType(type as any);
     }
 
     return NextResponse.json(data);

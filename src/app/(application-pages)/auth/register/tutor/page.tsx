@@ -98,6 +98,7 @@ export default function TutorRegisterPage() {
             formData.append('password', data.password);
             formData.append('phoneNumber', data.phoneNumber);
             formData.append('role', 'TUTOR');
+            if (data.agreeTerms) formData.append('agreeTerms', String(data.agreeTerms));
             
             if (data.bio) formData.append('bio', data.bio);
             if (data.experienceType) formData.append('experienceType', data.experienceType);

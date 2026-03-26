@@ -3,8 +3,9 @@ import { Providers } from './provider';
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth";
-import { Geist, Geist_Mono, JetBrains_Mono, Gloock } from "next/font/google";
+import { Geist_Mono, JetBrains_Mono, Gloock, Inter, Manrope } from "next/font/google";
 
+import { BetaDialog } from "@/src/components/BetaDialog";
 import { constructMetadata } from '@/src/lib/metadata';
 
 export const metadata = constructMetadata();
@@ -16,8 +17,13 @@ const gloock = Gloock({
   display: "swap",
 });
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+});
+
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin"],
 });
 
@@ -37,10 +43,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html data-scroll-behavior="smooth" lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${jetBrainsMono.variable} ${gloock.variable} font-sans antialiased`} >
+      <body className={`${inter.variable} ${manrope.variable} ${jetBrainsMono.variable} ${gloock.variable} font-sans antialiased`} >
         <Providers session={session}>
+          <BetaDialog />
           {children}
-
         </Providers>
         <script
           dangerouslySetInnerHTML={{

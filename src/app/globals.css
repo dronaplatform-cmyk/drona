@@ -674,12 +674,15 @@ html{
   * {
     @apply border-border outline-ring/50;
   }
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-serif), serif;
-    /* letter-spacing: 1px */
-  }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-inter), sans-serif;
+  }
+  .font-marketing h1, .font-marketing h2, .font-marketing h3, .font-marketing h4, .font-marketing h5, .font-marketing h6 {
+    font-family: var(--font-gloock), serif;
+  }
+  .font-application h1, .font-application h2, .font-application h3, .font-application h4, .font-application h5, .font-application h6 {
+    font-family: var(--font-manrope), sans-serif;
   }
 }
 

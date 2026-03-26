@@ -64,7 +64,7 @@ export default function ApplicationLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background font-application">
       {/* Desktop Sidebar */}
       <Sidebar items={navItems} />
 

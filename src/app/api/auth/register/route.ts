@@ -25,6 +25,8 @@ export async function POST(req: NextRequest) {
     const adhaarId = formData.get("adhaarId") as string | null;
     const location = formData.get("location") as string | null;
     const phoneNumber = formData.get("phoneNumber") as string;
+    const agreeTermsRaw = formData.get("agreeTerms");
+    const agreeTerms = agreeTermsRaw === "true";
 
     let subjects: string[] = [];
     if (subjectsRaw) {
@@ -55,7 +57,7 @@ export async function POST(req: NextRequest) {
 
     // Validate fields
     const parse = registerSchema.safeParse({ 
-        fullname, email, password, role, phoneNumber,
+        fullname, email, password, role, phoneNumber, agreeTerms,
         bio: bio || undefined,
         experienceType: experienceType || undefined,
         experienceYears: experienceYears ? parseInt(experienceYears) : undefined,
@@ -67,8 +69,9 @@ export async function POST(req: NextRequest) {
     });
 
     if (!parse.success) {
+      const errorMessages = parse.error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`).join(' | ');
       return NextResponse.json(
-        { message: "Validation failed", errors: parse.error.flatten() },
+        { message: `Validation failed: ${errorMessages}`, errors: parse.error.flatten().fieldErrors },
         { status: 400 }
       );
     }

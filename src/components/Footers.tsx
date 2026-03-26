@@ -96,7 +96,10 @@ export const LandingFooter = ({
                   className="h-8"
                 /> */}
               </a>
-              <h2 className="text-xl font-semibold">{logo.title}</h2>
+              <div className="flex flex-col items-start -space-y-1">
+                <h2 className="text-xl font-semibold">{logo.title}</h2>
+                <span className="text-[10px] font-bold text-primary tracking-widest uppercase mt-0.5">Beta</span>
+              </div>
             </div>
             <p className="text-muted-foreground max-w-[70%] text-sm">
               {description}

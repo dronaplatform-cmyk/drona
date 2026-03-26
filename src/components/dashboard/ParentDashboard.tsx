@@ -189,7 +189,7 @@ export default function ParentDashboard() {
                     <FormItem>
                       <FormLabel>Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Shivkumar Batalvi" {...field} />
+                        <Input placeholder="Full name of your child" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

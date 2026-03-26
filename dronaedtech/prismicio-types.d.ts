@@ -116,6 +116,17 @@ interface BlogPostDocumentData {
      * - **Documentation**: https://prismic.io/docs/fields/rich-text
      */
     content: prismic.RichTextField;
+
+    /**
+     * author field in *Blog post*
+     *
+     * - **Field Type**: Text
+     * - **Placeholder**: *None*
+     * - **API ID Path**: blog_post.author
+     * - **Tab**: Main
+     * - **Documentation**: https://prismic.io/docs/fields/text
+     */
+    author: prismic.KeyTextField;
 }
 
 /**
@@ -134,7 +145,50 @@ export type BlogPostDocument<Lang extends string = string> =
         Lang
     >;
 
-export type AllDocumentTypes = BlogPostDocument;
+/**
+ * Content for Legal Page documents
+ */
+interface LegalPageDocumentData {
+    /**
+     * Title field in *Legal Page*
+     *
+     * - **Field Type**: Text
+     * - **Placeholder**: *None*
+     * - **API ID Path**: legal_page.title
+     * - **Tab**: Main
+     * - **Documentation**: https://prismic.io/docs/fields/text
+     */
+    title: prismic.KeyTextField;
+
+    /**
+     * Content field in *Legal Page*
+     *
+     * - **Field Type**: Rich Text
+     * - **Placeholder**: *None*
+     * - **API ID Path**: legal_page.content
+     * - **Tab**: Main
+     * - **Documentation**: https://prismic.io/docs/fields/rich-text
+     */
+    content: prismic.RichTextField;
+}
+
+/**
+ * Legal Page document from Prismic
+ *
+ * - **API ID**: `legal_page`
+ * - **Repeatable**: `true`
+ * - **Documentation**: https://prismic.io/docs/content-modeling
+ *
+ * @typeParam Lang - Language API ID of the document.
+ */
+export type LegalPageDocument<Lang extends string = string> =
+    prismic.PrismicDocumentWithUID<
+        Simplify<LegalPageDocumentData>,
+        'legal_page',
+        Lang
+    >;
+
+export type AllDocumentTypes = BlogPostDocument | LegalPageDocument;
 
 declare module '@prismicio/client' {
     interface CreateClient {
@@ -159,6 +213,8 @@ declare module '@prismicio/client' {
         export type {
             BlogPostDocument,
             BlogPostDocumentData,
+            LegalPageDocument,
+            LegalPageDocumentData,
             AllDocumentTypes,
         };
     }

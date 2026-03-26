@@ -37,6 +37,7 @@ export default function ParentRegisterPage() {
             formData.append('password', data.password);
             formData.append('phoneNumber', data.phoneNumber);
             formData.append('role', 'PARENT');
+            formData.append('agreeTerms', String(data.agreeTerms));
             if (photoFile) {
                 formData.append('profilePhoto', photoFile);
             }
@@ -49,11 +50,10 @@ export default function ParentRegisterPage() {
             });
             console.log("User created successfully:", response.data);
             router.push(`/auth/login/parent`);
-        } catch (error: unknown) {
+        } catch (error: any) {
             console.error("Registration failed:", error);
-            const err = error as any;
-            console.error("Registration failed:", err?.response?.data?.message || err?.message || "Registration failed due to server error.");
-            // alert(error?.response?.data?.message || error?.message || "Registration failed due to server error.");
+            console.error("Registration failed:", error?.response?.data?.message || error?.message || "Registration failed due to server error.");
+            alert(error?.response?.data?.message || error?.message || "Registration failed due to server error.");
         }
     };
 
