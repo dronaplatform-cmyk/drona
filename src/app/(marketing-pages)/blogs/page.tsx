@@ -29,7 +29,7 @@ export default async function BlogsPage() {
   return (
     <div className="container mx-auto py-16 px-6 max-w-6xl min-h-screen">
       <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">Drona Insights</h1>
+          <h1 className="text-4xl md:text-5xl   mb-4">Drona Insights</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Discover educational insights, platform updates, and learning strategies.
           </p>
@@ -55,12 +55,12 @@ export default async function BlogsPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription className="line-clamp-3 text-sm mb-4">
-                     {blog.data.excerpt || 'Read more about this topic...'}
+                  <CardDescription className="line-clamp-2 text-sm -mt-4 mb-6">
+                     {blog.data.excerpt || `Read more about ${blog.data.title} this topic...`}
                   </CardDescription>
-                  <div className="flex justify-between items-center text-xs text-muted-foreground mt-auto">
-                      <span>{new Date(blog.first_publication_date).toLocaleDateString()}</span>
-                      {blog.data.author && <Badge variant="secondary">{blog.data.author}</Badge>}
+                  <div className="flex flex-col gap-2 text-accent-foreground/60 justify-between items-start text-xs mt-auto">
+                      {blog.data.author && <span>{blog.data.author}</span>}
+                      <span className='' >{new Date(blog.first_publication_date).toLocaleDateString()}</span>
                   </div>
                 </CardContent>
               </Card>

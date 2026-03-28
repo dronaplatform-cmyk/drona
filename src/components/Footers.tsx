@@ -43,7 +43,7 @@ const defaultSections = [
       { name: "About Us", href: "/about" },
       { name: "Contact", href: "/contact" },
       { name: "Careers", href: "/careers" },
-      { name: "Blog", href: "/blog" },
+      { name: "Blogs", href: "/blogs" },
     ],
   },
   // {

@@ -119,6 +119,14 @@ export const LandingHeader = () => {
                 Contact
               </NavigationMenuLink>
             </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink
+                href="/blogs"
+                className={navigationMenuTriggerStyle()}
+              >
+               Blogs
+              </NavigationMenuLink>
+            </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
 

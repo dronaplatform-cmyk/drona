@@ -14,6 +14,7 @@ import { Checkbox } from "@/src/components/ui/checkbox";
 import { Label } from "@/src/components/ui/label";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/src/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/src/components/ui/popover";
+import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
 import { LOCATIONS } from "@/src/constants/locations";
 import { SUBJECTS } from "@/src/constants/subjects";
 import { Check, ChevronsUpDown } from "lucide-react";
@@ -348,14 +349,20 @@ export default function FindTutorPage() {
                 <Card className="h-full hover:shadow-lg transition-all duration-200 border-muted/60 hover:border-primary/20">
                 <CardHeader className="pb-3">
                     <div className="flex justify-between items-start gap-4">
-                        <div className="flex flex-col">
-                            <CardTitle className="text-lg font-bold group-hover:text-primary transition-colors">
-                                {tutor.user.fullname}
-                            </CardTitle>
-                            <CardDescription className="flex items-center gap-1 mt-1 text-xs">
-                                <IconMapPin className="h-3 w-3" />
-                                {tutor.location || "Online"}
-                            </CardDescription>
+                        <div className="flex items-center gap-3">
+                            <Avatar className="h-10 w-10 border">
+                                <AvatarImage src={tutor.user.image || tutor.user.profileImage || undefined} alt={tutor.user.fullname} />
+                                <AvatarFallback className="bg-primary/10 text-primary">{tutor.user.fullname.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div className="flex flex-col">
+                                <CardTitle className="text-lg font-bold group-hover:text-primary transition-colors">
+                                    {tutor.user.fullname}
+                                </CardTitle>
+                                <CardDescription className="flex items-center gap-1 mt-1 text-xs">
+                                    <IconMapPin className="h-3 w-3" />
+                                    {tutor.location || "Online"}
+                                </CardDescription>
+                            </div>
                         </div>
                         {tutor.hourlyRate ? (
                             <Badge variant="outline" className="text-sm font-semibold whitespace-nowrap bg-green-50 text-green-700 border-green-200">
