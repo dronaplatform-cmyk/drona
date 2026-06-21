@@ -109,3 +109,8 @@ export type QueryResponse = Prisma.QueryResponseModel
  * 
  */
 export type Payment = Prisma.PaymentModel
+/**
+ * Model AdminActivityLog
+ * 
+ */
+export type AdminActivityLog = Prisma.AdminActivityLogModel

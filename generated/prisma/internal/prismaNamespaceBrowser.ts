@@ -64,7 +64,8 @@ export const ModelName = {
   VerificationRequest: 'VerificationRequest',
   Query: 'Query',
   QueryResponse: 'QueryResponse',
-  Payment: 'Payment'
+  Payment: 'Payment',
+  AdminActivityLog: 'AdminActivityLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -284,6 +285,20 @@ export const PaymentScalarFieldEnum = {
 } as const
 
 export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
+
+
+export const AdminActivityLogScalarFieldEnum = {
+  id: 'id',
+  adminId: 'adminId',
+  adminUsername: 'adminUsername',
+  action: 'action',
+  deviceModel: 'deviceModel',
+  ipAddress: 'ipAddress',
+  location: 'location',
+  createdAt: 'createdAt'
+} as const
+
+export type AdminActivityLogScalarFieldEnum = (typeof AdminActivityLogScalarFieldEnum)[keyof typeof AdminActivityLogScalarFieldEnum]
 
 
 export const SortOrder = {

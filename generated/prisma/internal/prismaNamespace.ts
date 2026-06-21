@@ -397,7 +397,8 @@ export const ModelName = {
   VerificationRequest: 'VerificationRequest',
   Query: 'Query',
   QueryResponse: 'QueryResponse',
-  Payment: 'Payment'
+  Payment: 'Payment',
+  AdminActivityLog: 'AdminActivityLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -413,7 +414,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "ping" | "account" | "session" | "user" | "tutorProfile" | "resource" | "student" | "class" | "homework" | "report" | "verificationRequest" | "query" | "queryResponse" | "payment"
+    modelProps: "ping" | "account" | "session" | "user" | "tutorProfile" | "resource" | "student" | "class" | "homework" | "report" | "verificationRequest" | "query" | "queryResponse" | "payment" | "adminActivityLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1453,6 +1454,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    AdminActivityLog: {
+      payload: Prisma.$AdminActivityLogPayload<ExtArgs>
+      fields: Prisma.AdminActivityLogFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AdminActivityLogFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminActivityLogPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AdminActivityLogFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminActivityLogPayload>
+        }
+        findFirst: {
+          args: Prisma.AdminActivityLogFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminActivityLogPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AdminActivityLogFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminActivityLogPayload>
+        }
+        findMany: {
+          args: Prisma.AdminActivityLogFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminActivityLogPayload>[]
+        }
+        create: {
+          args: Prisma.AdminActivityLogCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminActivityLogPayload>
+        }
+        createMany: {
+          args: Prisma.AdminActivityLogCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AdminActivityLogCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminActivityLogPayload>[]
+        }
+        delete: {
+          args: Prisma.AdminActivityLogDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminActivityLogPayload>
+        }
+        update: {
+          args: Prisma.AdminActivityLogUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminActivityLogPayload>
+        }
+        deleteMany: {
+          args: Prisma.AdminActivityLogDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AdminActivityLogUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AdminActivityLogUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminActivityLogPayload>[]
+        }
+        upsert: {
+          args: Prisma.AdminActivityLogUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminActivityLogPayload>
+        }
+        aggregate: {
+          args: Prisma.AdminActivityLogAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAdminActivityLog>
+        }
+        groupBy: {
+          args: Prisma.AdminActivityLogGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AdminActivityLogGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AdminActivityLogCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AdminActivityLogCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1693,6 +1768,20 @@ export const PaymentScalarFieldEnum = {
 } as const
 
 export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
+
+
+export const AdminActivityLogScalarFieldEnum = {
+  id: 'id',
+  adminId: 'adminId',
+  adminUsername: 'adminUsername',
+  action: 'action',
+  deviceModel: 'deviceModel',
+  ipAddress: 'ipAddress',
+  location: 'location',
+  createdAt: 'createdAt'
+} as const
+
+export type AdminActivityLogScalarFieldEnum = (typeof AdminActivityLogScalarFieldEnum)[keyof typeof AdminActivityLogScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1980,6 +2069,7 @@ export type GlobalOmitConfig = {
   query?: Prisma.QueryOmit
   queryResponse?: Prisma.QueryResponseOmit
   payment?: Prisma.PaymentOmit
+  adminActivityLog?: Prisma.AdminActivityLogOmit
 }
 
 /* Types for Logging */

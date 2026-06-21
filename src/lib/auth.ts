@@ -3,6 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import prisma from '@/src/lib/prisma'; // Your singleton Prisma client
 import bcrypt from 'bcryptjs';
+import { sendLoginAttemptEmail, sendAdminLoginAttemptEmail } from '@/src/lib/mail';
 
 // Define the NextAuth options object
 export const authOptions: NextAuthOptions = {
@@ -76,6 +77,31 @@ export const authOptions: NextAuthOptions = {
                 const isMatch = await bcrypt.compare(credentials.password, user.password);
 
                 if (isMatch) {
+                    // Extract Device + IP from NextAuth req
+                    const reqHeaders = req?.headers as Record<string, string> | undefined;
+                    const userAgent = reqHeaders?.['user-agent'] || 'Unknown Device';
+                    const ipAddress = reqHeaders?.['x-forwarded-for'] || 'Unknown IP';
+                    
+                    // If Admin, log the activity and send an admin alert instead
+                    if (user.role === 'ADMIN') {
+                        sendAdminLoginAttemptEmail(user.username, userAgent, ipAddress).catch(console.error);
+
+                        prisma.adminActivityLog.create({
+                            data: {
+                                adminId: user.id,
+                                adminUsername: user.username,
+                                action: 'LOGIN',
+                                deviceModel: userAgent.substring(0, 255),
+                                ipAddress: ipAddress.substring(0, 255)
+                            }
+                        }).catch(console.error);
+                    } else {
+                        // Regular users just get a login attempt email
+                        if (user.email) {
+                            sendLoginAttemptEmail(user.email, userAgent, ipAddress).catch(console.error);
+                        }
+                    }
+
                     return {
                         id: user.id,
                         email: user.email,

@@ -5,7 +5,7 @@ import { generateOTP } from "@/src/lib/tokens";
 import { UserRole } from "@/generated/prisma/client";
 import prisma from "@/src/lib/prisma";
 import { uploadToCloudinary } from "@/src/lib/cloudinary";
-import { sendVerificationEmail } from "@/src/lib/mail";
+import { sendVerificationEmail, sendWelcomeEmail } from "@/src/lib/mail";
 
 export async function POST(req: NextRequest) {
   try {
@@ -158,6 +158,7 @@ export async function POST(req: NextRequest) {
     // Send verification email
     try {
       await sendVerificationEmail(email, verificationToken);
+      await sendWelcomeEmail(email, fullname);
     } catch (emailError) {
       console.error("Failed to send verification email:", emailError);
       // We don't return error here because user is already created

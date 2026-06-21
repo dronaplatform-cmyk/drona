@@ -90,6 +90,7 @@ model User {
   students     Student[]     @relation("ParentStudents") // For Parents
   queries      Query[]       @relation("ParentQueries")
   payments     Payment[]     @relation("ParentPayments")
+  adminLogs    AdminActivityLog[] @relation("AdminLogs")
 }
 
 model TutorProfile {
@@ -277,4 +278,16 @@ enum PaymentStatus {
   PENDING
   COMPLETED
   FAILED
+}
+
+model AdminActivityLog {
+  id            String   @id @default(cuid())
+  adminId       String
+  adminUsername String   // Explicitly recorded username
+  admin         User     @relation("AdminLogs", fields: [adminId], references: [id])
+  action        String   // e.g., "LOGIN"
+  deviceModel   String?  // Extracted from User-Agent
+  ipAddress     String?  // Extracted from headers
+  location      String?  // Optional: Derived from IP
+  createdAt     DateTime @default(now())
 }
