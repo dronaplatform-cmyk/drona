@@ -40,7 +40,7 @@ export const sendStudentCredentialsEmail = async (parentEmail: string, studentNa
           <h2 style="color: #4F46E5;">Student Account Details</h2>
           <p>A new student account has been created for <strong>${studentName}</strong>.</p>
           <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 15px 0;">
-            <p style="margin-bottom: 8px;"><strong>Student ID:</strong> ${studentId}</p>
+            <p style="margin-bottom: 8px;"><strong>Username:</strong> ${studentId}</p>
             <p><strong>Password:</strong> ${studentPass}</p>
           </div>
           <p>The student can login to the platform using these exact credentials.</p>

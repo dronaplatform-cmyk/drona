@@ -37,6 +37,7 @@ export type StudentSumAggregateOutputType = {
 export type StudentMinAggregateOutputType = {
   id: string | null
   parentId: string | null
+  username: string | null
   name: string | null
   password: string | null
   age: number | null
@@ -48,6 +49,7 @@ export type StudentMinAggregateOutputType = {
 export type StudentMaxAggregateOutputType = {
   id: string | null
   parentId: string | null
+  username: string | null
   name: string | null
   password: string | null
   age: number | null
@@ -59,6 +61,7 @@ export type StudentMaxAggregateOutputType = {
 export type StudentCountAggregateOutputType = {
   id: number
   parentId: number
+  username: number
   name: number
   password: number
   age: number
@@ -81,6 +84,7 @@ export type StudentSumAggregateInputType = {
 export type StudentMinAggregateInputType = {
   id?: true
   parentId?: true
+  username?: true
   name?: true
   password?: true
   age?: true
@@ -92,6 +96,7 @@ export type StudentMinAggregateInputType = {
 export type StudentMaxAggregateInputType = {
   id?: true
   parentId?: true
+  username?: true
   name?: true
   password?: true
   age?: true
@@ -103,6 +108,7 @@ export type StudentMaxAggregateInputType = {
 export type StudentCountAggregateInputType = {
   id?: true
   parentId?: true
+  username?: true
   name?: true
   password?: true
   age?: true
@@ -202,6 +208,7 @@ export type StudentGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 export type StudentGroupByOutputType = {
   id: string
   parentId: string
+  username: string
   name: string
   password: string
   age: number | null
@@ -237,6 +244,7 @@ export type StudentWhereInput = {
   NOT?: Prisma.StudentWhereInput | Prisma.StudentWhereInput[]
   id?: Prisma.StringFilter<"Student"> | string
   parentId?: Prisma.StringFilter<"Student"> | string
+  username?: Prisma.StringFilter<"Student"> | string
   name?: Prisma.StringFilter<"Student"> | string
   password?: Prisma.StringFilter<"Student"> | string
   age?: Prisma.IntNullableFilter<"Student"> | number | null
@@ -254,6 +262,7 @@ export type StudentWhereInput = {
 export type StudentOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
+  username?: Prisma.SortOrder
   name?: Prisma.SortOrder
   password?: Prisma.SortOrder
   age?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -270,6 +279,7 @@ export type StudentOrderByWithRelationInput = {
 
 export type StudentWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  username?: string
   AND?: Prisma.StudentWhereInput | Prisma.StudentWhereInput[]
   OR?: Prisma.StudentWhereInput[]
   NOT?: Prisma.StudentWhereInput | Prisma.StudentWhereInput[]
@@ -286,11 +296,12 @@ export type StudentWhereUniqueInput = Prisma.AtLeast<{
   homeworks?: Prisma.HomeworkListRelationFilter
   reports?: Prisma.ReportListRelationFilter
   queries?: Prisma.QueryListRelationFilter
-}, "id">
+}, "id" | "username">
 
 export type StudentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
+  username?: Prisma.SortOrder
   name?: Prisma.SortOrder
   password?: Prisma.SortOrder
   age?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -311,6 +322,7 @@ export type StudentScalarWhereWithAggregatesInput = {
   NOT?: Prisma.StudentScalarWhereWithAggregatesInput | Prisma.StudentScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Student"> | string
   parentId?: Prisma.StringWithAggregatesFilter<"Student"> | string
+  username?: Prisma.StringWithAggregatesFilter<"Student"> | string
   name?: Prisma.StringWithAggregatesFilter<"Student"> | string
   password?: Prisma.StringWithAggregatesFilter<"Student"> | string
   age?: Prisma.IntNullableWithAggregatesFilter<"Student"> | number | null
@@ -322,6 +334,7 @@ export type StudentScalarWhereWithAggregatesInput = {
 
 export type StudentCreateInput = {
   id?: string
+  username: string
   name: string
   password: string
   age?: number | null
@@ -339,6 +352,7 @@ export type StudentCreateInput = {
 export type StudentUncheckedCreateInput = {
   id?: string
   parentId: string
+  username: string
   name: string
   password: string
   age?: number | null
@@ -354,6 +368,7 @@ export type StudentUncheckedCreateInput = {
 
 export type StudentUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -371,6 +386,7 @@ export type StudentUpdateInput = {
 export type StudentUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -387,6 +403,7 @@ export type StudentUncheckedUpdateInput = {
 export type StudentCreateManyInput = {
   id?: string
   parentId: string
+  username: string
   name: string
   password: string
   age?: number | null
@@ -398,6 +415,7 @@ export type StudentCreateManyInput = {
 
 export type StudentUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -410,6 +428,7 @@ export type StudentUpdateManyMutationInput = {
 export type StudentUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -432,6 +451,7 @@ export type StudentOrderByRelationAggregateInput = {
 export type StudentCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
+  username?: Prisma.SortOrder
   name?: Prisma.SortOrder
   password?: Prisma.SortOrder
   age?: Prisma.SortOrder
@@ -448,6 +468,7 @@ export type StudentAvgOrderByAggregateInput = {
 export type StudentMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
+  username?: Prisma.SortOrder
   name?: Prisma.SortOrder
   password?: Prisma.SortOrder
   age?: Prisma.SortOrder
@@ -459,6 +480,7 @@ export type StudentMaxOrderByAggregateInput = {
 export type StudentMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
+  username?: Prisma.SortOrder
   name?: Prisma.SortOrder
   password?: Prisma.SortOrder
   age?: Prisma.SortOrder
@@ -592,6 +614,7 @@ export type StudentUpdateOneWithoutQueriesNestedInput = {
 
 export type StudentCreateWithoutParentInput = {
   id?: string
+  username: string
   name: string
   password: string
   age?: number | null
@@ -607,6 +630,7 @@ export type StudentCreateWithoutParentInput = {
 
 export type StudentUncheckedCreateWithoutParentInput = {
   id?: string
+  username: string
   name: string
   password: string
   age?: number | null
@@ -652,6 +676,7 @@ export type StudentScalarWhereInput = {
   NOT?: Prisma.StudentScalarWhereInput | Prisma.StudentScalarWhereInput[]
   id?: Prisma.StringFilter<"Student"> | string
   parentId?: Prisma.StringFilter<"Student"> | string
+  username?: Prisma.StringFilter<"Student"> | string
   name?: Prisma.StringFilter<"Student"> | string
   password?: Prisma.StringFilter<"Student"> | string
   age?: Prisma.IntNullableFilter<"Student"> | number | null
@@ -663,6 +688,7 @@ export type StudentScalarWhereInput = {
 
 export type StudentCreateWithoutClassesInput = {
   id?: string
+  username: string
   name: string
   password: string
   age?: number | null
@@ -679,6 +705,7 @@ export type StudentCreateWithoutClassesInput = {
 export type StudentUncheckedCreateWithoutClassesInput = {
   id?: string
   parentId: string
+  username: string
   name: string
   password: string
   age?: number | null
@@ -709,6 +736,7 @@ export type StudentUpdateToOneWithWhereWithoutClassesInput = {
 
 export type StudentUpdateWithoutClassesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -725,6 +753,7 @@ export type StudentUpdateWithoutClassesInput = {
 export type StudentUncheckedUpdateWithoutClassesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -739,6 +768,7 @@ export type StudentUncheckedUpdateWithoutClassesInput = {
 
 export type StudentCreateWithoutHomeworksInput = {
   id?: string
+  username: string
   name: string
   password: string
   age?: number | null
@@ -755,6 +785,7 @@ export type StudentCreateWithoutHomeworksInput = {
 export type StudentUncheckedCreateWithoutHomeworksInput = {
   id?: string
   parentId: string
+  username: string
   name: string
   password: string
   age?: number | null
@@ -785,6 +816,7 @@ export type StudentUpdateToOneWithWhereWithoutHomeworksInput = {
 
 export type StudentUpdateWithoutHomeworksInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -801,6 +833,7 @@ export type StudentUpdateWithoutHomeworksInput = {
 export type StudentUncheckedUpdateWithoutHomeworksInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -815,6 +848,7 @@ export type StudentUncheckedUpdateWithoutHomeworksInput = {
 
 export type StudentCreateWithoutReportsInput = {
   id?: string
+  username: string
   name: string
   password: string
   age?: number | null
@@ -831,6 +865,7 @@ export type StudentCreateWithoutReportsInput = {
 export type StudentUncheckedCreateWithoutReportsInput = {
   id?: string
   parentId: string
+  username: string
   name: string
   password: string
   age?: number | null
@@ -861,6 +896,7 @@ export type StudentUpdateToOneWithWhereWithoutReportsInput = {
 
 export type StudentUpdateWithoutReportsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -877,6 +913,7 @@ export type StudentUpdateWithoutReportsInput = {
 export type StudentUncheckedUpdateWithoutReportsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -891,6 +928,7 @@ export type StudentUncheckedUpdateWithoutReportsInput = {
 
 export type StudentCreateWithoutQueriesInput = {
   id?: string
+  username: string
   name: string
   password: string
   age?: number | null
@@ -907,6 +945,7 @@ export type StudentCreateWithoutQueriesInput = {
 export type StudentUncheckedCreateWithoutQueriesInput = {
   id?: string
   parentId: string
+  username: string
   name: string
   password: string
   age?: number | null
@@ -937,6 +976,7 @@ export type StudentUpdateToOneWithWhereWithoutQueriesInput = {
 
 export type StudentUpdateWithoutQueriesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -953,6 +993,7 @@ export type StudentUpdateWithoutQueriesInput = {
 export type StudentUncheckedUpdateWithoutQueriesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -967,6 +1008,7 @@ export type StudentUncheckedUpdateWithoutQueriesInput = {
 
 export type StudentCreateManyParentInput = {
   id?: string
+  username: string
   name: string
   password: string
   age?: number | null
@@ -978,6 +1020,7 @@ export type StudentCreateManyParentInput = {
 
 export type StudentUpdateWithoutParentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -993,6 +1036,7 @@ export type StudentUpdateWithoutParentInput = {
 
 export type StudentUncheckedUpdateWithoutParentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1008,6 +1052,7 @@ export type StudentUncheckedUpdateWithoutParentInput = {
 
 export type StudentUncheckedUpdateManyWithoutParentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1078,6 +1123,7 @@ export type StudentCountOutputTypeCountQueriesArgs<ExtArgs extends runtime.Types
 export type StudentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   parentId?: boolean
+  username?: boolean
   name?: boolean
   password?: boolean
   age?: boolean
@@ -1096,6 +1142,7 @@ export type StudentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 export type StudentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   parentId?: boolean
+  username?: boolean
   name?: boolean
   password?: boolean
   age?: boolean
@@ -1109,6 +1156,7 @@ export type StudentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
 export type StudentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   parentId?: boolean
+  username?: boolean
   name?: boolean
   password?: boolean
   age?: boolean
@@ -1122,6 +1170,7 @@ export type StudentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
 export type StudentSelectScalar = {
   id?: boolean
   parentId?: boolean
+  username?: boolean
   name?: boolean
   password?: boolean
   age?: boolean
@@ -1131,7 +1180,7 @@ export type StudentSelectScalar = {
   interests?: boolean
 }
 
-export type StudentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "parentId" | "name" | "password" | "age" | "photo" | "school" | "aspirations" | "interests", ExtArgs["result"]["student"]>
+export type StudentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "parentId" | "username" | "name" | "password" | "age" | "photo" | "school" | "aspirations" | "interests", ExtArgs["result"]["student"]>
 export type StudentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   parent?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   classes?: boolean | Prisma.Student$classesArgs<ExtArgs>
@@ -1159,6 +1208,7 @@ export type $StudentPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     parentId: string
+    username: string
     name: string
     password: string
     age: number | null
@@ -1596,6 +1646,7 @@ export interface Prisma__StudentClient<T, Null = never, ExtArgs extends runtime.
 export interface StudentFieldRefs {
   readonly id: Prisma.FieldRef<"Student", 'String'>
   readonly parentId: Prisma.FieldRef<"Student", 'String'>
+  readonly username: Prisma.FieldRef<"Student", 'String'>
   readonly name: Prisma.FieldRef<"Student", 'String'>
   readonly password: Prisma.FieldRef<"Student", 'String'>
   readonly age: Prisma.FieldRef<"Student", 'Int'>

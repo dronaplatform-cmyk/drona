@@ -50,16 +50,16 @@ function StudentLoginContent() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Student Login</CardTitle>
-          <CardDescription>Enter your Student ID provided by your parent</CardDescription>
+          <CardDescription>Enter your Username provided by your parent</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="studentId">Student ID (UUID)</Label>
+              <Label htmlFor="studentId">Username</Label>
               <Input
                 id="studentId"
                 type="text"
-                placeholder="Enter your unique ID"
+                placeholder="e.g. sam123"
                 value={studentId}
                 onChange={(e) => setStudentId(e.target.value)}
                 required

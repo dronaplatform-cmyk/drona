@@ -16,12 +16,21 @@ export const registerSchema = z.object({
     classesTaught: z.array(z.string()).optional(), // Changed to array for multiple selection
     adhaarId: z.string().optional(),
     location: z.string().optional(),
+    hourlyRate: z.coerce.number().positive("Hourly rate must be greater than 0").optional(),
     phoneNumber: z.string()
         .min(10, "Phone number must be at least 10 digits.")
         .max(15, "Phone number must be at most 15 digits."),
     agreeTerms: z.boolean().refine((val) => val === true, {
         message: "Please accept the terms to continue.",
     }),
+}).refine((data) => {
+    if (data.role === 'TUTOR') {
+        return data.hourlyRate !== undefined && data.hourlyRate > 0;
+    }
+    return true;
+}, {
+    message: "Hourly rate is required for tutors and must be greater than 0.",
+    path: ["hourlyRate"]
 });
 
 // Export the inferred TypeScript type for type safety across the app

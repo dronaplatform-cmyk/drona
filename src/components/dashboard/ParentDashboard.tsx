@@ -31,7 +31,7 @@ import {
   DialogTitle,
 } from "@/src/components/ui/dialog";
 import { useProfile } from "@/src/providers/ProfileProvider";
-import { IconLoader2, IconUserPlus, IconUsers, IconCalendarPlus, IconSearch } from "@tabler/icons-react";
+import { IconLoader2, IconUserPlus, IconUsers, IconCalendarPlus, IconSearch, IconCheck, IconX } from "@tabler/icons-react";
 import { toast } from "sonner";
 import { bookClass, searchTutors } from "@/src/app/actions/booking";
 import { useSession } from "next-auth/react";
@@ -39,6 +39,7 @@ import { OnboardingModal } from "@/src/components/dashboard/OnboardingModal";
 
 const createStudentSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
+  username: z.string().min(3, "Username must be at least 3 characters").regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores"),
   password: z.string().min(4, "Password must be at least 4 characters"),
 });
 
@@ -47,7 +48,7 @@ type CreateStudentForm = z.infer<typeof createStudentSchema>;
 interface Student {
   id: string;
   name: string;
-  studentId: string;
+  username: string;
 }
 
 interface Tutor {
@@ -80,10 +81,65 @@ export default function ParentDashboard() {
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurringWeeks, setRecurringWeeks] = useState(1);
 
+  // Username validation states
+  const [usernameCheckLoading, setUsernameCheckLoading] = useState(false);
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [usernameCheckError, setUsernameCheckError] = useState("");
+  const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
+
+  const handleUsernameChange = (val: string) => {
+    setUsernameAvailable(null);
+    setUsernameCheckError("");
+
+    if (val.length < 3) {
+      setUsernameCheckLoading(false);
+      if (typingTimeout) clearTimeout(typingTimeout);
+      return;
+    }
+
+    // Instantly show loader
+    setUsernameCheckLoading(true);
+
+    if (typingTimeout) {
+      clearTimeout(typingTimeout);
+    }
+
+    const timeout = setTimeout(async () => {
+      if (!/^[a-zA-Z0-9_]+$/.test(val)) {
+        setUsernameCheckError("Can only contain letters, numbers, and underscores");
+        setUsernameCheckLoading(false);
+        return;
+      }
+
+      try {
+        const res = await axios.get(`/api/check-username?username=${encodeURIComponent(val)}`);
+        if (res.data.exists) {
+          setUsernameAvailable(false);
+          setUsernameCheckError("Username already exists");
+        } else {
+          setUsernameAvailable(true);
+        }
+      } catch (err) {
+        setUsernameCheckError("Failed to verify username");
+      } finally {
+        setUsernameCheckLoading(false);
+      }
+    }, 1000);
+
+    setTypingTimeout(timeout);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (typingTimeout) clearTimeout(typingTimeout);
+    };
+  }, [typingTimeout]);
+
   const form = useForm<CreateStudentForm>({
     resolver: zodResolver(createStudentSchema),
     defaultValues: {
       name: "",
+      username: "",
       password: "",
     },
   });
@@ -104,13 +160,23 @@ export default function ParentDashboard() {
   };
 
   const onSubmit = async (data: CreateStudentForm) => {
+    if (usernameAvailable === false || usernameCheckLoading) {
+      toast.error("Please enter a valid, unique username");
+      return;
+    }
     try {
       await axios.post("/api/parent/students", data);
       toast.success("Student created successfully");
       form.reset();
+      setUsernameAvailable(null);
+      setUsernameCheckLoading(false);
+      setUsernameCheckError("");
       fetchStudents();
     } catch (error) {
-      toast.error("Failed to create student");
+      const errMsg = axios.isAxiosError(error) && error.response?.data?.error
+        ? error.response.data.error
+        : "Failed to create student";
+      toast.error(errMsg);
     }
   };
 
@@ -121,7 +187,7 @@ export default function ParentDashboard() {
       setTutorResults(res.tutors as unknown as Tutor[]);
     }
   };
-  
+
   const openBooking = (studentId: string) => {
     setSelectedStudentId(studentId);
     setBookingDialogOpen(true);
@@ -131,24 +197,24 @@ export default function ParentDashboard() {
     if (!selectedStudentId || !selectedTutor || !bookingDate || !session.data?.user.id) return;
 
     try {
-        const start = new Date(bookingDate);
-        const schedules = [];
+      const start = new Date(bookingDate);
+      const schedules = [];
 
-        if (isRecurring) {
-            for (let i = 0; i < recurringWeeks; i++) {
-                const date = new Date(start);
-                date.setDate(start.getDate() + (i * 7));
-                schedules.push(date.toISOString());
-            }
-        } else {
-            schedules.push(start.toISOString());
+      if (isRecurring) {
+        for (let i = 0; i < recurringWeeks; i++) {
+          const date = new Date(start);
+          date.setDate(start.getDate() + (i * 7));
+          schedules.push(date.toISOString());
         }
+      } else {
+        schedules.push(start.toISOString());
+      }
 
-        await axios.post('/api/class/create', {
-            tutorId: selectedTutor.id,
-            studentId: selectedStudentId,
-            schedules: schedules
-        });
+      await axios.post('/api/class/create', {
+        tutorId: selectedTutor.id,
+        studentId: selectedStudentId,
+        schedules: schedules
+      });
 
       toast.success(isRecurring ? `${schedules.length} classes booked successfully!` : "Class booked successfully!");
       setBookingDialogOpen(false);
@@ -197,6 +263,43 @@ export default function ParentDashboard() {
                 />
                 <FormField
                   control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Username</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            placeholder="Unique username (e.g. sam123)"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              handleUsernameChange(e.target.value);
+                            }}
+                          />
+                          <div className="absolute right-3 top-2.5 flex items-center gap-1.5">
+                            {usernameCheckLoading && (
+                              <IconLoader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                            )}
+                            {!usernameCheckLoading && usernameAvailable === true && (
+                              <IconCheck className="h-4 w-4 text-green-500" />
+                            )}
+                            {!usernameCheckLoading && usernameAvailable === false && (
+                              <IconX className="h-4 w-4 text-red-500" />
+                            )}
+                          </div>
+                        </div>
+                      </FormControl>
+                      {usernameCheckError ? (
+                        <p className="text-[0.8rem] font-medium text-destructive">{usernameCheckError}</p>
+                      ) : (
+                        <FormMessage />
+                      )}
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
                   name="password"
                   render={({ field }) => (
                     <FormItem>
@@ -208,7 +311,7 @@ export default function ParentDashboard() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+                <Button type="submit" className="w-full" disabled={!form.formState.isValid || form.formState.isSubmitting || usernameAvailable === false || usernameCheckLoading}>
                   {form.formState.isSubmitting && (
                     <IconLoader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
@@ -248,7 +351,7 @@ export default function ParentDashboard() {
                       <div>
                         <p className="font-medium">{student.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          ID: {student.id}
+                          Username: {student.username}
                         </p>
                       </div>
                     </div>
@@ -319,51 +422,51 @@ export default function ParentDashboard() {
             <div className="space-y-6 py-4">
               <div className="flex items-center justify-between p-3 bg-muted rounded-md border">
                 <div className="flex flex-col">
-                    <span className="text-xs text-muted-foreground">Tutor</span>
-                    <span className="font-medium">{selectedTutor.user.fullname}</span>
+                  <span className="text-xs text-muted-foreground">Tutor</span>
+                  <span className="font-medium">{selectedTutor.user.fullname}</span>
                 </div>
                 <Button variant="ghost" size="sm" onClick={() => setSelectedTutor(null)}>Change</Button>
               </div>
 
               <div className="space-y-4 border p-4 rounded-md">
                 <div className="space-y-2">
-                    <FormLabel>Start Date & Time</FormLabel>
-                    <Input
+                  <FormLabel>Start Date & Time</FormLabel>
+                  <Input
                     type="datetime-local"
                     value={bookingDate}
                     onChange={(e) => setBookingDate(e.target.value)}
                     min={new Date().toISOString().slice(0, 16)}
-                    />
+                  />
                 </div>
 
                 <div className="flex items-center justify-between space-x-2">
-                    <FormLabel className="flex flex-col space-y-1">
-                        <span>Recurring Booking</span>
-                        <span className="font-normal text-xs text-muted-foreground">Repeat this slot weekly?</span>
-                    </FormLabel>
-                    <Switch
-                        checked={isRecurring}
-                        onCheckedChange={setIsRecurring}
-                    />
+                  <FormLabel className="flex flex-col space-y-1">
+                    <span>Recurring Booking</span>
+                    <span className="font-normal text-xs text-muted-foreground">Repeat this slot weekly?</span>
+                  </FormLabel>
+                  <Switch
+                    checked={isRecurring}
+                    onCheckedChange={setIsRecurring}
+                  />
                 </div>
 
                 {isRecurring && (
-                    <div className="space-y-4 pt-2">
-                        <div className="flex justify-between">
-                            <FormLabel>Duration</FormLabel>
-                            <span className="text-sm text-muted-foreground">{recurringWeeks} Weeks</span>
-                        </div>
-                        <Slider
-                            value={[recurringWeeks]}
-                            onValueChange={(vals) => setRecurringWeeks(vals[0])}
-                            min={2}
-                            max={12}
-                            step={1}
-                        />
-                         <p className="text-xs text-muted-foreground">
-                            Class will be scheduled every {bookingDate && new Date(bookingDate).toLocaleDateString("en-US", { weekday: 'long' })} at {bookingDate && new Date(bookingDate).toLocaleTimeString("en-US", { hour: '2-digit', minute:'2-digit' })}.
-                        </p>
+                  <div className="space-y-4 pt-2">
+                    <div className="flex justify-between">
+                      <FormLabel>Duration</FormLabel>
+                      <span className="text-sm text-muted-foreground">{recurringWeeks} Weeks</span>
                     </div>
+                    <Slider
+                      value={[recurringWeeks]}
+                      onValueChange={(vals) => setRecurringWeeks(vals[0])}
+                      min={2}
+                      max={12}
+                      step={1}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Class will be scheduled every {bookingDate && new Date(bookingDate).toLocaleDateString("en-US", { weekday: 'long' })} at {bookingDate && new Date(bookingDate).toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit' })}.
+                    </p>
+                  </div>
                 )}
               </div>
             </div>
@@ -372,7 +475,7 @@ export default function ParentDashboard() {
           <DialogFooter>
             {selectedTutor && (
               <Button onClick={handleBookClass}>
-                  {isRecurring ? `Confirm ${recurringWeeks} Sessions` : "Confirm Booking"}
+                {isRecurring ? `Confirm ${recurringWeeks} Sessions` : "Confirm Booking"}
               </Button>
             )}
           </DialogFooter>

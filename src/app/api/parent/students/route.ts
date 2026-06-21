@@ -9,6 +9,10 @@ import { sendStudentCredentialsEmail } from "@/src/lib/mail";
 // Schema for creating a student
 const createStudentSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
+  username: z.string()
+    .min(3, "Username must be at least 3 characters")
+    .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores")
+    .transform((val) => val.toLowerCase()),
   password: z.string().min(4, "Password must be at least 4 characters"),
 });
 
@@ -23,11 +27,20 @@ export async function POST(req: Request) {
     const body = await req.json();
     const validatedData = createStudentSchema.parse(body);
 
+    const existingStudent = await prisma.student.findUnique({
+      where: { username: validatedData.username }
+    });
+
+    if (existingStudent) {
+      return NextResponse.json({ error: "Username is already taken" }, { status: 400 });
+    }
+
     const hashedPassword = await bcrypt.hash(validatedData.password, 10);
 
     const student = await prisma.student.create({
       data: {
         name: validatedData.name,
+        username: validatedData.username,
         password: hashedPassword,
         parentId: session.user.id,
       },
@@ -39,7 +52,7 @@ export async function POST(req: Request) {
         await sendStudentCredentialsEmail(
           session.user.email,
           student.name,
-          student.id,
+          student.username,
           validatedData.password
         );
       } catch (emailError) {

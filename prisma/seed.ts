@@ -94,9 +94,11 @@ async function main() {
     const numStudents = faker.number.int({ min: 1, max: 3 });
     for (let j = 0; j < numStudents; j++) {
       const studentName = faker.person.firstName();
+      const studentUsername = `${studentName.toLowerCase().replace(/[^a-z0-9_]/g, "")}_${faker.string.alphanumeric(4).toLowerCase()}`;
       const student = await prisma.student.create({
         data: {
           name: `${studentName} ${lastName}`,
+          username: studentUsername,
           parentId: parent.id,
           password: await bcrypt.hash('123', 10),
           // password: await bcrypt.hash('123',10),

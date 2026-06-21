@@ -24,6 +24,8 @@ export async function POST(req: NextRequest) {
     const classesTaughtRaw = formData.get("classesTaught") as string | null;
     const adhaarId = formData.get("adhaarId") as string | null;
     const location = formData.get("location") as string | null;
+    const hourlyRateRaw = formData.get("hourlyRate") as string | null;
+    const hourlyRate = hourlyRateRaw ? parseFloat(hourlyRateRaw) : undefined;
     const phoneNumber = formData.get("phoneNumber") as string;
     const agreeTermsRaw = formData.get("agreeTerms");
     const agreeTerms = agreeTermsRaw === "true";
@@ -65,7 +67,8 @@ export async function POST(req: NextRequest) {
         subjectsOthers: subjectsOthers || undefined,
         classesTaught: classesTaught.length > 0 ? classesTaught : undefined,
         adhaarId: adhaarId || undefined,
-        location: location || undefined
+        location: location || undefined,
+        hourlyRate: hourlyRate
     });
 
     if (!parse.success) {
@@ -149,6 +152,7 @@ export async function POST(req: NextRequest) {
                    adhaarId: adhaarId,
                    location: location,
                    subjects: subjects,
+                   hourlyRate: parse.data.hourlyRate
                 }
             }
         } : {})

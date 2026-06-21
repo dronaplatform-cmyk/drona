@@ -28,7 +28,7 @@ import { IconLoader2, IconDeviceFloppy } from "@tabler/icons-react";
 import { toast } from "sonner";
 
 const studentProfileSchema = z.object({
-  age: z.number().optional(),
+  age: z.number().int().min(0, "Age must be positive").optional(),
   school: z.string().optional(),
   aspirations: z.string().optional(),
   interests: z.string().optional(), // Comma separated for input
@@ -109,7 +109,16 @@ export default function StudentProfileForm() {
                 <FormItem>
                   <FormLabel>Age</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="15" {...field} value={field.value as number} />
+                    <Input
+                      type="number"
+                      placeholder="15"
+                      {...field}
+                      value={field.value ?? ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        field.onChange(val === "" ? undefined : parseInt(val, 10));
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -181,6 +181,7 @@ export type ResourceScalarFieldEnum = (typeof ResourceScalarFieldEnum)[keyof typ
 export const StudentScalarFieldEnum = {
   id: 'id',
   parentId: 'parentId',
+  username: 'username',
   name: 'name',
   password: 'password',
   age: 'age',

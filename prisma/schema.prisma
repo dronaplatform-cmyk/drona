@@ -143,6 +143,7 @@ enum ResourceType {
 model Student {
   id           String   @id @default(cuid())
   parentId     String
+  username     String   @unique
   parent       User     @relation("ParentStudents", fields: [parentId], references: [id])
   
   name         String

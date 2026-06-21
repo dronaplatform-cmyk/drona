@@ -57,7 +57,8 @@ export default function TutorRegisterPage() {
             phoneNumber: '', 
             subjects: [], 
             classesTaught: [],
-            agreeTerms: false
+            agreeTerms: false,
+            hourlyRate: undefined
         }
     });
 
@@ -108,6 +109,7 @@ export default function TutorRegisterPage() {
             if (data.classesTaught && data.classesTaught.length > 0) formData.append('classesTaught', JSON.stringify(data.classesTaught));
             if (data.adhaarId) formData.append('adhaarId', data.adhaarId);
             if (location) formData.append('location', location);
+            if (data.hourlyRate !== undefined) formData.append('hourlyRate', data.hourlyRate.toString());
 
             if (docFile) {
                 formData.append('verificationDocument', docFile);
@@ -349,24 +351,37 @@ export default function TutorRegisterPage() {
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                             <Label>Location (City)</Label>
-                             <Select onValueChange={(val) => {
-                                 setLocation(val);
-                                 setValue('location', val as any); 
-                             }}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select a city" />
-                                </SelectTrigger>
-                                <SelectContent className="max-h-[200px]">
-                                    {cities.length === 0 && <SelectItem value="loading" disabled>Loading cities...</SelectItem>}
-                                    {cities.map((city) => (
-                                        <SelectItem key={city.id} value={city.name}>
-                                            {city.name}, {city.state}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                             </Select>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2 flex flex-col">
+                                 <Label className="mb-2">Location (City)</Label>
+                                 <Select onValueChange={(val) => {
+                                     setLocation(val);
+                                     setValue('location', val as any); 
+                                 }}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select a city" />
+                                    </SelectTrigger>
+                                    <SelectContent className="max-h-[200px]">
+                                        {cities.length === 0 && <SelectItem value="loading" disabled>Loading cities...</SelectItem>}
+                                        {cities.map((city) => (
+                                            <SelectItem key={city.id} value={city.name}>
+                                                {city.name}, {city.state}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                 </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="hourlyRate">Hourly Rate (₹)</Label>
+                                <Input
+                                    id="hourlyRate"
+                                    type="number"
+                                    placeholder="500"
+                                    {...register('hourlyRate')}
+                                />
+                                {errors.hourlyRate && <p className="text-red-500 text-sm">{errors.hourlyRate.message}</p>}
+                            </div>
                         </div>
 
 

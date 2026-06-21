@@ -75,7 +75,7 @@ const tutorProfileSchema = z.object({
   experience: z.string().optional(),
   experienceOthers: z.string().optional(),
   classesTaught: z.array(z.string()).optional(),
-  hourlyRate: z.number().min(0, "Hourly rate must be positive"),
+  hourlyRate: z.number().min(1, "Hourly rate must be greater than 0"),
   location: z.string().optional(),
 });
 
