@@ -226,6 +226,11 @@ export default function TutorProfilePage() {
     return <p className="text-center p-8">Tutor not found.</p>;
   }
 
+  const computedSchedules = generateSchedule();
+  const schedulesCount = computedSchedules.length;
+  const startDate = computedSchedules.length > 0 ? computedSchedules[0] : null;
+  const endDate = computedSchedules.length > 0 ? computedSchedules[computedSchedules.length - 1] : null;
+
   return (
     <>
       <Script src="https://checkout.razorpay.com/v1/checkout.js" />
@@ -261,10 +266,13 @@ export default function TutorProfilePage() {
                           <DialogTrigger asChild>
                               <Button className="w-full">Book Class</Button>
                           </DialogTrigger>
-                          <DialogContent>
+                          <DialogContent className="sm:max-w-md">
                               <DialogHeader>
                                   <DialogTitle>Book a Session</DialogTitle>
-                                  <DialogDescription>Schedule a class with {tutor.user.fullname}</DialogDescription>
+                                  <DialogDescription className="flex items-center gap-1.5 flex-wrap mt-1">
+                                      <span>Schedule a class with {tutor.user.fullname}</span>
+                                      <Badge variant="outline" className="text-xs font-semibold px-2 py-0.5">₹{tutor.hourlyRate || 0}/hr</Badge>
+                                  </DialogDescription>
                               </DialogHeader>
                               <div className="grid gap-4 py-4">
                                   <div className="grid gap-2">
@@ -356,9 +364,62 @@ export default function TutorProfilePage() {
                                           className="w-full"
                                       />
                                   </div>
+
+                                  {/* Dynamic Booking Summary Box */}
+                                  {schedulesCount > 0 ? (
+                                      <div className="mt-2 p-3 bg-muted/60 rounded-lg border border-border space-y-2 text-sm">
+                                          <div className="flex justify-between items-center text-xs text-muted-foreground uppercase tracking-wider font-semibold">
+                                              <span>Booking Summary</span>
+                                              <span>Estimate</span>
+                                          </div>
+                                          <div className="h-px bg-border" />
+                                          <div className="flex justify-between items-center">
+                                              <span className="text-muted-foreground">Hourly Rate:</span>
+                                              <span className="font-semibold text-foreground">₹{tutor.hourlyRate || 0}/hr</span>
+                                          </div>
+                                          <div className="flex justify-between items-center">
+                                              <span className="text-muted-foreground">Total Sessions:</span>
+                                              <span className="font-semibold text-foreground">{schedulesCount} {schedulesCount === 1 ? 'class' : 'classes'}</span>
+                                          </div>
+                                          
+                                          {isRecurring && startDate && endDate ? (
+                                              <div className="text-xs text-muted-foreground border-t pt-2 space-y-1">
+                                                  <div>
+                                                      <span className="font-medium">Classes Scheduled Until:</span>{" "}
+                                                      <span className="font-semibold text-foreground">{format(endDate, "PPP")}</span>
+                                                  </div>
+                                                  <div className="text-[11px] text-muted-foreground">
+                                                      Recurring range: {format(startDate, "PP")} to {format(endDate, "PP")}
+                                                  </div>
+                                              </div>
+                                          ) : startDate ? (
+                                              <div className="text-xs text-muted-foreground border-t pt-2">
+                                                  <span className="font-medium">Class Date:</span>{" "}
+                                                  <span className="font-semibold text-foreground">{format(startDate, "PPP")}</span>
+                                              </div>
+                                          ) : null}
+
+                                          <div className="flex justify-between items-center border-t pt-2 font-medium">
+                                              <span className="text-foreground font-semibold">Total Amount:</span>
+                                              <span className="text-lg font-bold text-primary">₹{((tutor.hourlyRate || 0) * schedulesCount).toLocaleString()}</span>
+                                          </div>
+                                      </div>
+                                  ) : isRecurring ? (
+                                      <div className="mt-2 p-3 bg-muted/30 rounded-lg border border-border border-dashed text-center text-xs text-muted-foreground">
+                                          Please select at least one weekday to see scheduled dates and class count.
+                                      </div>
+                                  ) : null}
                               </div>
                               <DialogFooter>
-                                  <Button onClick={handleBookClass}>Confirm Booking</Button>
+                                  <Button 
+                                      onClick={handleBookClass}
+                                      disabled={schedulesCount === 0 || !selectedStudentId}
+                                      className="w-full sm:w-auto"
+                                  >
+                                      {schedulesCount > 0 
+                                          ? `Confirm & Pay ₹${((tutor.hourlyRate || 0) * schedulesCount).toLocaleString()}` 
+                                          : "Confirm Booking"}
+                                  </Button>
                               </DialogFooter>
                           </DialogContent>
                       </Dialog>

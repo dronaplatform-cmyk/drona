@@ -3,7 +3,7 @@ import { Providers } from './provider';
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth";
-import { Geist_Mono, JetBrains_Mono, Gloock, Inter, Manrope } from "next/font/google";
+import { Geist_Mono, JetBrains_Mono, Gloock, Inter,Geist, Manrope } from "next/font/google";
 
 import { BetaDialog } from "@/src/components/BetaDialog";
 import { constructMetadata } from '@/src/lib/metadata';
@@ -19,6 +19,10 @@ const gloock = Gloock({
 
 const inter = Inter({
   variable: "--font-inter",
+  subsets: ["latin"],
+});
+const geist = Geist({
+  variable: "--font-geist",
   subsets: ["latin"],
 });
 
@@ -43,7 +47,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html data-scroll-behavior="smooth" lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${manrope.variable} ${jetBrainsMono.variable} ${gloock.variable} font-sans antialiased`} >
+      <body className={`${geist.variable} ${manrope.variable} ${jetBrainsMono.variable} ${gloock.variable} font-sans antialiased`} >
         <Providers session={session}>
           <BetaDialog />
           {children}

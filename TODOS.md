@@ -1,3 +1,7 @@
+
+ek error logging method, maybe in a discord community of a WA community will , everywhere a frontend error occure we will pormpt users to go to a certain place (where users will get a guide on where to report thiss error) like to join WA comm or a new DC server so that users and can straight dump into the server to report the issue to you, what would you choose 
+Can we use QR codes for them to scan instead of typing?  qr holds the login details like discord but have or have most secire  flow for student sensitie data and all 
+
 modify relavancy in auth header and auth pages, "single tabs layout????idk "
 
 Automatically trigger after a certain duration (like 2 hours) via a cron job but the oroblemis we cant trakc scron jobs for multipleclasses here inthe apps for multipel students-tutors-classes, and also a manual button to end class we will see cron job later of add a `endTime` column i nclassses db which will upodated when this time auto made wil pass.  Right now, classes start but never officially "end" in the system. We need to implement the transition to COMPLETED. 
