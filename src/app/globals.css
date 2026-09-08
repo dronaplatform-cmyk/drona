@@ -684,9 +684,13 @@ html{
   .font-application h1, .font-application h2, .font-application h3, .font-application h4, .font-application h5, .font-application h6 {
     font-family: var(--font-manrope), sans-serif;
   }
+  .font-quote {
+    font-family: var(--font-tiro-devanagari-hindi), sans-serif;
+  }
 }
 
 /* 
 body{
   overflow-x: hidden !important;
 } */
+
