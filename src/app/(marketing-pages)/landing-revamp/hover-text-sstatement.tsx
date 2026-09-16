@@ -1,1 +1,1 @@
-bunx shadcn@4.20.0 add https://21st.dev/r/mdafsarx/hover-footer
+// bunx shadcn@4.20.0 add https://21st.dev/r/mdafsarx/hover-footer
