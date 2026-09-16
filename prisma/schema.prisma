@@ -1,0 +1,294 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  // url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  STUDENT
+  PARENT
+  TUTOR
+  USER // default when no data would be received
+  ADMIN // For system oversight, managing profiles, etc. (future expansion)
+}
+
+enum ClassStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model Ping {
+  id        Int      @id @default(autoincrement())
+  message   String   @default("pong")
+  createdAt DateTime @default(now())
+}
+
+model Account {
+  id                 String    @id @default(cuid())
+  userId             String
+  providerType       String
+  providerId         String
+  providerAccountId  String
+  refreshToken       String?
+  accessToken        String?
+  accessTokenExpires DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  user               User      @relation(fields: [userId], references: [id])
+
+  @@unique([providerId, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  expires      DateTime
+  sessionToken String   @unique
+  accessToken  String   @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id          String   @id @default(uuid())
+  username    String   @unique
+  email       String?  @unique
+  password    String?  
+  fullname    String
+  role        UserRole @default(USER)
+  phoneNumber String?  @unique
+
+  isVerified               Boolean?  @default(false)
+  verificationDocument     String?   // URL to uploaded ID proof
+  verficationToken         String?
+  verficationTokenExpiry   DateTime?
+  passwordResetToken       String?
+  passwordResetTokenExpiry DateTime?
+  image                    String?   // Profile photo
+  profileImage             String?   // Explicit profile image as requested
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  accounts  Account[]
+  sessions  Session[]
+  
+  // Role specific
+  tutorProfile TutorProfile?
+  students     Student[]     @relation("ParentStudents") // For Parents
+  queries      Query[]       @relation("ParentQueries")
+  payments     Payment[]     @relation("ParentPayments")
+  adminLogs    AdminActivityLog[] @relation("AdminLogs")
+}
+
+model TutorProfile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  
+  subjects  String[]
+  bio       String?
+  experience String?
+  classesTaught String?
+  adhaarId  String?
+  hourlyRate Decimal?
+  rating    Float? @default(0)
+  location  String?
+  isVerified Boolean @default(false)
+  
+  classes   Class[]
+  resources Resource[]
+  queries   Query[]
+  payments  Payment[]
+}
+
+model Resource {
+  id        String   @id @default(cuid())
+  tutorId   String
+  tutor     TutorProfile @relation(fields: [tutorId], references: [id])
+  
+  classId   String?
+  class     Class?       @relation(fields: [classId], references: [id])
+
+  title     String
+  type      ResourceType
+  url       String?
+  content   String?
+  
+  size      Int?
+  mimeType  String?
+
+  createdAt DateTime @default(now())
+}
+
+enum ResourceType {
+  PDF
+  LINK
+  TEXT
+  IMAGE
+}
+
+model Student {
+  id           String   @id @default(cuid())
+  parentId     String
+  username     String   @unique
+  parent       User     @relation("ParentStudents", fields: [parentId], references: [id])
+  
+  name         String
+  password     String   // Simple password set by parent
+  
+  // Extended Profile
+  age          Int?
+  photo        String?
+  school       String?
+  aspirations  String?
+  interests    String[]
+  
+  classes      Class[]
+  homeworks    Homework[]
+  reports      Report[]
+  queries      Query[]
+}
+
+model Class {
+  id        String   @id @default(cuid())
+  tutorId   String
+  tutor     TutorProfile @relation(fields: [tutorId], references: [id])
+  studentId String
+  student   Student      @relation(fields: [studentId], references: [id])
+  
+  scheduledAt DateTime
+  status      ClassStatus @default(SCHEDULED)
+  attendanceToken String?
+  verificationDate DateTime?
+  endTime     DateTime?
+  createdAt   DateTime @default(now())
+  
+  homeworks   Homework[]
+  resources   Resource[]
+}
+
+model Homework {
+  id        String   @id @default(cuid())
+  classId   String
+  class     Class    @relation(fields: [classId], references: [id])
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id])
+  
+  title     String
+  description String?
+  dueDate   DateTime?
+  isCompleted Boolean @default(false)
+}
+
+model Report {
+  id        String   @id @default(cuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id])
+  
+  title     String
+  feedback  String
+  grade     String?
+  createdAt DateTime @default(now())
+}
+
+model VerificationRequest {
+  id         String   @id @default(cuid())
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([identifier, token])
+}
+
+model Query {
+  id        String   @id @default(cuid())
+  content   String
+  
+  // Sender info
+  senderId  String
+  senderRole UserRole
+  
+  // Context
+  tutorId   String
+  tutor     TutorProfile @relation(fields: [tutorId], references: [id])
+  
+  studentId String?
+  student   Student?     @relation(fields: [studentId], references: [id])
+  
+  parentId  String?
+  parent    User?        @relation("ParentQueries", fields: [parentId], references: [id])
+  
+  context   QueryContext
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  responses QueryResponse[]
+}
+
+model QueryResponse {
+  id        String   @id @default(cuid())
+  queryId   String
+  query     Query    @relation(fields: [queryId], references: [id])
+  
+  content   String
+  
+  senderId  String
+  senderRole UserRole
+  
+  createdAt DateTime @default(now())
+}
+
+enum QueryContext {
+  TUTOR_PARENT
+  TUTOR_STUDENT
+}
+
+model Payment {
+  id        String   @id @default(cuid())
+  amount    Decimal
+  currency  String   @default("INR")
+  status    PaymentStatus @default(PENDING)
+  
+  parentId  String
+  parent    User     @relation("ParentPayments", fields: [parentId], references: [id])
+  
+  tutorId   String?
+  tutor     TutorProfile? @relation(fields: [tutorId], references: [id])
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model AdminActivityLog {
+  id            String   @id @default(cuid())
+  adminId       String
+  adminUsername String   // Explicitly recorded username
+  admin         User     @relation("AdminLogs", fields: [adminId], references: [id])
+  action        String   // e.g., "LOGIN"
+  deviceModel   String?  // Extracted from User-Agent
+  ipAddress     String?  // Extracted from headers
+  location      String?  // Optional: Derived from IP
+  createdAt     DateTime @default(now())
+}

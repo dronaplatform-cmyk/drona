@@ -1,0 +1,16 @@
+≡ƒî▒ Starting seeding...
+Creating 100 Tutors...
+prisma:error SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+    at D:\Development\Upcoming\drona\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async PrismaPgAdapter.startTransaction (D:\Development\Upcoming\drona\node_modules\@prisma\adapter-pg\dist\index.js:726:18)
+    at async Ft.#r (D:\Development\Upcoming\drona\node_modules\@prisma\client-engine-runtime\src\transaction-manager\transaction-manager.ts:119:31)
+    at async Ft.startInternalTransaction (D:\Development\Upcoming\drona\node_modules\@prisma\client-engine-runtime\src\transaction-manager\transaction-manager.ts:91:12)
+    at async e.interpretNode (D:\Development\Upcoming\drona\node_modules\@prisma\client-engine-runtime\src\interpreter\query-interpreter.ts:248:33)
+    at async e.run (D:\Development\Upcoming\drona\node_modules\@prisma\client-engine-runtime\src\interpreter\query-interpreter.ts:83:23)
+    at async e.execute (D:\Development\Upcoming\drona\node_modules\@prisma\client\src\runtime\core\engines\client\LocalExecutor.ts:75:12)
+    at async Dt.request (D:\Development\Upcoming\drona\node_modules\@prisma\client\src\runtime\core\engines\client\ClientEngine.ts:469:22)
+    at async Object.singleLoader (D:\Development\Upcoming\drona\node_modules\@prisma\client\src\runtime\RequestHandler.ts:112:26) {
+  clientVersion: '7.0.1'
+}
