@@ -150,9 +150,9 @@ export const Hero = ({
                             )}
                         </div>
                     </div>
-                    <div className="relative   h-screen w-screen object-cover sm:block">
+                    <div className="relative   h-screen w-full object-cover sm:block">
                         <Image
-                            className="animation-duration-[100s] scale-200  overflow-x-hidden  transform animate-spin opacity-50 mix-blend-multiply dark:mix-blend-soft-light"
+                            className="animation-duration-[100s] scale-80  overflow-x-hidden  transform animate-spin opacity-50    mix-blend-multiply dark:mix-blend-soft-light"
                             src={'/mandala.svg'}
                             fill
                             alt="mandala"></Image>
