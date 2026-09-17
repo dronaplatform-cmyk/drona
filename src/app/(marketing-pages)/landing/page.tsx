@@ -1,4 +1,5 @@
 'use client';
+
 import {
     Accordion,
     AccordionContent,
@@ -13,7 +14,15 @@ import {
 } from '@/src/components/ui/avatar';
 import { Badge } from '@/src/components/ui/badge';
 import { Button } from '@/src/components/ui/button';
-import { Card, CardContent, CardFooter } from '@/src/components/ui/card';
+import {
+    Card,
+    CardAction,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from '@/src/components/ui/card';
 import {
     Tabs,
     TabsContent,
@@ -27,7 +36,6 @@ import {
     Cog,
     Lightbulb,
     ListChecks,
-    Play,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -44,13 +52,9 @@ import {
     IconBook,
     IconCalendarCheck,
     IconMessageCircle,
-    IconPlayerEject,
-    IconPlayerPlay,
-    IconPlayerPlayFilled,
     IconShieldCheck,
     IconUsers,
 } from '@tabler/icons-react';
-import Link from 'next/link';
 import Image from 'next/image';
 
 interface CtaProps {
@@ -511,10 +515,10 @@ export const Faq = ({
 
 interface GalleryItem {
     id: string;
-    title: string;
-    description: string;
-    href: string;
-    image: string;
+    name: string;
+    role: string;
+    location: string;
+    video_src: string;
 }
 
 interface GalleryProps {
@@ -525,42 +529,24 @@ interface GalleryProps {
 
 export const galleryData = [
     {
-        id: 'math-tutoring',
-        title: 'Expert Math Tutoring',
-        description:
-            'Master complex concepts with personalized guidance from experienced math tutors. From algebra to calculus, find the right help for every level.',
-        href: '/tutors?subject=Mathematics',
-        image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2070&auto=format&fit=crop',
+        id: '1',
+        name: '',
+        role: 'Parent',
+        location: 'Greater Noida',
+        video_src: '/testimonials/tstm-1.mp4',
     },
     {
-        id: 'science-labs',
-        title: 'Interactive Science Learning',
-        description:
-            'Explore the wonders of science through engaging lessons. Our tutors make physics, chemistry, and biology come alive.',
-        href: '/tutors?subject=Science',
-        image: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?q=80&w=2070&auto=format&fit=crop',
-    },
-    {
-        id: 'language-arts',
-        title: 'Language & Literature',
-        description:
-            'Improve reading comprehension, writing skills, and literary analysis with dedicated language tutors.',
-        href: '/tutors?subject=English',
-        image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=2070&auto=format&fit=crop',
-    },
-    {
-        id: 'coding-skills',
-        title: 'Coding & Computer Science',
-        description:
-            'Start your coding journey or advance your skills in Python, Java, Web Development, and more with expert mentors.',
-        href: '/tutors?subject=Computer%20Science',
-        image: 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?q=80&w=2070&auto=format&fit=crop',
+        id: '1',
+        name: 'Joginder Sharma',
+        role: 'Parent',
+        location: 'Gurgaon',
+        video_src: '/testimonials/tstm-2-joginder.mp4',
     },
 ];
 
 export const Gallery = ({
-    title = 'Explore Subjects',
-    description = 'Discover a wide range of subjects taught by qualified professionals. From core academics to specialized skills, we have it all.',
+    title = 'Testimonials',
+    description = 'From the users of our platform',
     items = galleryData,
 }: GalleryProps) => {
     const [carouselApi, setCarouselApi] = useState<CarouselApi>();
@@ -634,33 +620,30 @@ export const Gallery = ({
                         {items.map(item => (
                             <CarouselItem
                                 key={item.id}
-                                className="max-w-[320px] pl-[20px] lg:max-w-[360px]">
-                                <Link
-                                    href={item.href}
-                                    className="group rounded-xl">
-                                    <div className="group relative h-full min-h-108 max-w-full overflow-hidden rounded-xl md:aspect-5/4 lg:aspect-video">
-                                        <Image
-                                            width={100}
-                                            height={100}
-                                            src={item.image}
-                                            alt={item.title}
-                                            className="absolute h-full w-full object-cover object-center brightness-30 transition-transform duration-300 group-hover:scale-105"
-                                        />
-                                        <div className="absolute inset-0 h-full bg-[linear-gradient(transparent_20%,var(--secondary)_100%)] mix-blend-multiply" />
-                                        <div className="absolute inset-x-0 bottom-0 flex flex-col items-start p-6 text-white md:p-8">
-                                            <div className="mb-2 pt-4 text-xl md:mb-3 md:pt-4 lg:pt-4">
-                                                {item.title}
-                                            </div>
-                                            <div className="text-muted-foreground mb-8 line-clamp-2 md:mb-12 lg:mb-9">
-                                                {item.description}
-                                            </div>
-                                            <div className="text-primary flex items-center text-sm">
-                                                Find Tutors{' '}
-                                                <ArrowRight className="ml-2 size-5 transition-transform group-hover:translate-x-1" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </Link>
+                                className="  pl-[20px] lg:max-w-[360px]">
+                                <Card className="relative mx-auto w-full max-w-sm pt-0">
+                                    <div className="absolute z-30 aspect-video bg-black/35" />
+
+                                    <video
+                                        src={item.video_src}
+                                        controls
+
+                                        className="relative z-20 aspect-3/4 w-full object-cover"
+                                    />
+                                    <CardHeader>
+                                        <CardAction>
+                                            {/* <Badge variant="secondary">{`${item.role.charAt(0).toUpperCase() + item.role.slice(1) || 'parent'}`}</Badge> */}
+                                        </CardAction>
+                                        <CardTitle>{item.name || 'Parent' }</CardTitle>
+                                        <CardDescription>
+                                            {`${item.role.charAt(0).toUpperCase() + item.role.slice(1) || 'Parent'}`}
+                                            , {item.location ||'Remote'}
+                                        </CardDescription>
+                                    </CardHeader>
+                                    {/* <CardFooter>
+        <Button className="w-full">View Event</Button>
+      </CardFooter> */}
+                                </Card>
                             </CarouselItem>
                         ))}
                     </CarouselContent>
@@ -691,37 +674,8 @@ export const Testimonial = () => {
                 <div className="flex flex-col gap-6">
                     <div className="grid grid-cols-1 items-stretch gap-x-0 gap-y-4 lg:grid-cols-3 lg:gap-4">
                         {/* Relative wrapper to center the play button over the image */}
-                        <div className="bg-card border-accent relative flex items-center justify-center gap-8 rounded-2xl border pl-8  ">
+                        <div className="bg-card border-accent relative flex items-center justify-center gap-8 rounded-2xl border pl-8">
                             {/* <IconPlayerPlayFilled className="absolute bg-slate-400/10 backdrop-blur-xl p-4 rounded-full size-16 text-white cursor-pointer" /> */}
-                            <div className="flex flex-col gap-4 leading-5">
-                                <IconUsers />
-
-                                {/* <Avatar className="ring-input size-9 rounded-full ring-1">
-                <AvatarImage src="/testimonials/ms_revT2vMND5yBos.png" alt="Manmeet Singh" />
-                <AvatarFallback>MS</AvatarFallback>
-              </Avatar> */}
-                                <div className="text-sm">
-                                    <p className="font-medium">Testimonials</p>
-                                    <p className="text-muted-foreground">
-                                        from the users of platform
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="flex gap-2 ">
-                                <video
-                                    src="/testimonials/tstm-1.mp4"
-                                    controls
-                                    autoPlay
-                                    muted
-                                    className="h-48 w-1/3 rounded-lg border-amber-200 object-cover brightness-35 lg:h-auto"
-                                />
-                                <video
-                                    src="/testimonials/tstm-2-joginder.mp4"
-                                    controls
-                                    
-                                    className="h-48 w-1/3 rounded-lg border-amber-200 object-cover brightness-35 lg:h-auto"
-                                />
-                            </div>
                         </div>
 
                         <Card className="col-span-2 flex items-center justify-center p-6">
