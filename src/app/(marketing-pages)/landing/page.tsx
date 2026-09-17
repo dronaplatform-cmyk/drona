@@ -150,9 +150,9 @@ export const Hero = ({
                             )}
                         </div>
                     </div>
-                    <div className="relative hidden h-screen w-screen object-cover sm:block">
+                    <div className="relative   h-screen w-screen object-cover sm:block">
                         <Image
-                            className="animation-duration-[100s] scale-200 transform animate-spin opacity-50 mix-blend-multiply dark:mix-blend-soft-light"
+                            className="animation-duration-[100s] scale-200  overflow-x-hidden  transform animate-spin opacity-50 mix-blend-multiply dark:mix-blend-soft-light"
                             src={'/mandala.svg'}
                             fill
                             alt="mandala"></Image>
@@ -530,7 +530,7 @@ interface GalleryProps {
 export const galleryData = [
     {
         id: '1',
-        name: '',
+        name: 'Mukesh Jha',
         role: 'Parent',
         location: 'Greater Noida',
         video_src: '/testimonials/tstm-1.mp4',
