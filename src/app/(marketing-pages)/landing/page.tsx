@@ -536,7 +536,7 @@ export const galleryData = [
         video_src: '/testimonials/tstm-1.mp4',
     },
     {
-        id: '1',
+        id: '2',
         name: 'Joginder Sharma',
         role: 'Parent',
         location: 'Gurgaon',
